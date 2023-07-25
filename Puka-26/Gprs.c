@@ -7,7 +7,100 @@
 //#include "Globais.h"                              //Estava dando erro ao deixar descomentada, dava conflito das variaveis globais
 #include "Serial.h"
 
+// Receber uma linha de comando da fila de entrada (gprs)
+char gprs_cmdo(char *argc, char *argv, char limite){
+  char x,qtd,i;
+  char estado;      //modo=1, recebendo string
+  i=0;
+  estado=0;
+  qtd=0;
+  argc[0]=0;
+  argv[0]='\0';
+  gprs_come_crlf();
+  if (gprs_vazia() == TRUE)  return qtd; //Fila vazia?
+  while(TRUE){
+    while (gprs_tira(&x)==FALSE);
+    if (estado == 1){   //Receber um argumento
+      if (x=='\n' || x=='\r')        break;
+      if (x==' '){
+        argv[i++]='\0';
+        estado=0;
+      }
+      else  argv[i++]=x;
+    }
+    else{             //Retirar espaços
+      if (x=='\n' || x=='\r') break;
+      if (x != ' '){
+        argc[qtd]=i;
+        argv[i++]=x;
+        qtd++;
+        estado=1;
+      }
+    }
+    if (i==limite){
+      i--;
+      break;
+    }
+  }
+  argv[i++]='\0';
+  gprs_come_crlf();
+  return qtd;
+}
 
+// Verificar se a fila GPRS está vazia
+// TRUE = vazia e FALSE = não vazia
+char gprs_vazia(void){
+    char pin, pout;
+    __disable_interrupt();
+    pin=gprs_pin;   //Cópia dos ponteiros
+    pout=gprs_pout; //sem interrupções
+    __enable_interrupt();
+    pout=pout+1;
+    if (pout == GPRS_FILA_TAM)    pout=0;
+    if (pout == pin)  return  TRUE;   //Vazia
+    else              return  FALSE;  //Tem alguma coisa na fila
+}
+
+//Consumir CR e LF
+void gprs_come_crlf(void){
+    char x;
+    while (TRUE){
+        if (gprs_xereta(&x) == FALSE) break;
+        if ( x==CR || x==LF) gprs_tira(&x);
+        else                  break;
+    }
+}
+
+// Informa qual o próximo byte da fila GPRS
+// Não altera estado dos ponteiros
+// Chamada fora das interrupções
+// FALSE = fila vazia
+char gprs_xereta(char *cha){
+  int pin,pout;
+  __disable_interrupt();
+  pout=gprs_pout; //Copiar
+  pin=gprs_pin;   //ponteiros
+  __enable_interrupt();
+  pout++;
+  if (pout == GPRS_FILA_TAM)    pout=0;
+  if (pout == pin){
+    return FALSE;
+  }
+  else{
+    *cha=gprs_fila[pout];
+    return TRUE;
+  }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////Modifiquei até aqui //////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Imprimir uma string na USCI_A0
 // Polling TX_IFG=1
 void gprs_str(char *msg){
@@ -119,7 +212,14 @@ void ser0_config(char br){
 __interrupt void ISR_USCI_A0(void){
     int n;
     n = __even_in_range(UCA0IV,0x4);
-    gprs_poe(UCA0RXBUF);
+    switch(n){
+        case 0x0: break;
+        case 0x2: //RX
+            gprs_poe(UCA0RXBUF);
+            break;
+        case 0x4: break; //TX
+    }
+
 }
 
 

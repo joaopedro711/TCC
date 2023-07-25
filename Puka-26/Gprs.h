@@ -4,8 +4,15 @@
 #define GPRS_H_
 
 // GPRS USCI_A0(PC) integradas
-extern volatile char gprs_fila[GPRS_FILA_TAM]; //Espaço para a fila serial de entrada
+extern volatile char gprs_fila[64]; //Espaço para a fila serial de entrada
 extern volatile int gprs_pin, gprs_pout;       //Ponteiros para usar a fila
+
+///////////////////////////////////////////////////////////////////
+char gprs_cmdo(char *argc, char *argv, char limite);
+char gprs_vazia(void);
+void gprs_come_crlf(void);
+char gprs_xereta(char *cha);
+//////////////////////////////////////////////////////////////////////
 
 void gprs_str(char *msg);
 void gprs_char(char x);

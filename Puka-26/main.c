@@ -12,6 +12,7 @@
 #include "Strings.h"
 #include "Modos.h"
 #include "Gprs.h"
+#include "srcs/Estados.h"
 
 char sel_modo(void);
 
@@ -69,12 +70,14 @@ int main(void){
     if (mpu_tem==FALSE) ser1_str("\nSem MPU!");
     delay_10ms(100);
 // ------------------------------------------------------------------------------------------------------------------------------------
+// -------------------------------------- Estados -----------------------------------------------------------------------------------------
+    estados_config();
+// ------------------------------------------------------------------------------------------------------------------------------------
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
-
 //        Vou chamar a rotina de repouso
-
+        sel_estado();
 /*       ser1_str("Digite 1 para modo de teste de modos\n");
         ser1_str("Digite 2 para modo de execucao do programa final\n");
         lcdb_apaga();
@@ -129,11 +132,11 @@ int main(void){
         //AA:MM:DD HH:MM:SS +LL.LLLL +LL.LLLL +axaxax +ayayay +azazaz +gxgxgx +gygygy +gzgzgz CR LF
         //lcdb_apaga();
         //modo_furto(26);*/
-        delay_10ms(42000); //atraso 7 minutos
-        while(TRUE){
-        lcdb_apaga();
-        modo_save_f(25);
-        }
+//        delay_10ms(42000); //atraso 7 minutos
+//        while(TRUE){
+//        lcdb_apaga();
+//        modo_save_f(25);
+//        }
 /*        break;
 
         default: break;*/
