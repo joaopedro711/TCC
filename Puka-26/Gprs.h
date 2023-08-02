@@ -8,6 +8,7 @@ extern volatile char gprs_fila[64]; //Espaço para a fila serial de entrada
 extern volatile int gprs_pin, gprs_pout;       //Ponteiros para usar a fila
 
 ///////////////////////////////////////////////////////////////////
+void gprs_dec16(int dt);
 char gprs_cmdo(char *argc, char *argv, char limite);
 char gprs_vazia(void);
 void gprs_come_crlf(void);

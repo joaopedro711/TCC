@@ -50,6 +50,7 @@ int main(void){
         __delay_cycles(20000000);
     }*/
 // -------------------------------------- LCD -----------------------------------------------------------------------------------------
+
     i2c_config(SCL_400k);   //Usar depois do ser1_config()
     //Checar LCD e imprimir endere�o
     if (lcd_presente()==TRUE){  //Verificar o LCD
@@ -61,6 +62,7 @@ int main(void){
         //ser1_str("  i2c_tranca=");   ser1_dec8unz(i2c_tranca);
     }
     else    ser1_str("\nSem LCD!");
+
 // ------------------------------------------------------------------------------------------------------------------------------------
 // -------------------------------------- MPU -----------------------------------------------------------------------------------------
 
@@ -77,7 +79,15 @@ int main(void){
 
     while(TRUE){
 //        Vou chamar a rotina de repouso
-        sel_estado();
+        //sel_estado();
+ //       modo_rtc(14);    //Testar RTC
+        //alerta_2();
+        //dormente();
+       // modo_gprmc(20);
+       // modo_furto(26);
+       // modo_mpu(20);
+        vigilia();
+
 /*       ser1_str("Digite 1 para modo de teste de modos\n");
         ser1_str("Digite 2 para modo de execucao do programa final\n");
         lcdb_apaga();

@@ -818,6 +818,7 @@ char modo_save_f(char modo){
         save_data(msg3[k], wr_adr + k);
     }
 
+    //Ler da memoria
     for (i=0; i<16; i++){
         wq_rd_blk(rd_adr, vt,16);
         ser1_hex32(rd_adr);
@@ -850,6 +851,7 @@ char modo_save_f(char modo){
     delay_10ms(200);
 
     return modo;
+
 }
 
 char calculo_GPRMC (void) {
@@ -909,7 +911,7 @@ char calculo_GPRMC (void) {
     }
 }
 
-//separa latitude e longitude em algarismos e salva na memï¿½ria
+//separa latitude e longitude em algarismos e salva na memï¿½ria  (não salva)
 void separa_algarismos_gps_f(char vt[22]){
     int a, b;
     volatile int i=0 , j = 0, k;

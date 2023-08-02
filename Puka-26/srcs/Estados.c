@@ -5,6 +5,7 @@
 #include "Gprs.h"
 #include "Defines.h"
 #include "Serial.h"
+#include "Modos.h"
 
 void estados_config(){
     estado_i=0;
@@ -74,13 +75,25 @@ void resete(){
 }
 
 void dormente(){
-    gprs_str("dormente\r\n");
-    gprs_str("dormente\r\n");
+    rtc_estado();
+    gps_estado_modo();
+    todos_dados();
+    gprs_str(toda_msg);
+    gprs_str("\n\r---------------\n\r");
 }
 
 void vigilia(){
-    gprs_str("vigilia\r\n");
-    gprs_str("vigilia\r\n");
+    values_mpu();
+
+    while(TRUE){
+        if(acel_furto()==FALSE){
+            gprs_str("OK\r\n");
+        }
+        else if(acel_furto()==TRUE){
+            gprs_str("FURTADO\r\n");
+        }
+        delay_10ms(100); //0,5 seg
+    }
 }
 
 void alerta_1(){
@@ -89,8 +102,34 @@ void alerta_1(){
 }
 
 void alerta_2(){
-    gprs_str("alerta_2\r\n");
-    gprs_str("alerta_2\r\n");
+    rtc_estado();
+    atualiza_data_hora(TRUE, TRUE);
+    while(TRUE){
+        rtc_estado();
+       // gprs_str(rtc_msg);
+        //gprs_str("\n\r");
+        if(passou_1_min()==TRUE){
+
+            ///envia posição do gps
+
+            atualiza_data_hora(TRUE, FALSE); //atualiza apenas o minuto
+            gprs_str(rtc_msg);
+            gprs_str("\n\r----- passou 1 min -------\n\r");
+
+            //pega dados do gps
+            gps_estado_modo();
+            //junta todos os dados necessarios em apenas uma string
+            todos_dados();
+            gprs_str(toda_msg);
+        }
+        if(passou_1_hora()==TRUE){
+
+            ////envia posição do gps e grava na memoria
+            atualiza_data_hora(FALSE, TRUE); //atualiza apenas a hora
+            gprs_str(rtc_msg);
+            gprs_str("\n\r----- passou 10 seg -------\n\r");
+        }
+    }
 }
 
 void suspeito(){

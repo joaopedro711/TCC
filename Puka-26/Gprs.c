@@ -7,6 +7,13 @@
 //#include "Globais.h"                              //Estava dando erro ao deixar descomentada, dava conflito das variaveis globais
 #include "Serial.h"
 
+// Escrever 16 bits em Decimal, com sinal e com zeros à esq
+void gprs_dec16(int dt){
+  char msg[7];
+  str_dec16(dt, msg);
+  gprs_str(msg);
+}
+
 // Receber uma linha de comando da fila de entrada (gprs)
 char gprs_cmdo(char *argc, char *argv, char limite){
   char x,qtd,i;
@@ -221,7 +228,6 @@ __interrupt void ISR_USCI_A0(void){
     }
 
 }
-
 
 
 
