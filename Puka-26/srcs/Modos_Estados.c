@@ -13,7 +13,7 @@
 #include "Strings.h"
 #include "Gprs.h"
 #include "Estados.h"
-//#include "Globais.h"
+
 
 //Coloca a data e hora no vetor rtc_msg
 void rtc_estado(){
@@ -194,6 +194,76 @@ void gps_estado_modo(){
     separa_algarismos_gps_f(gps_msg);
 }
 
+//armazena os valores da latitude e longitude em variaveis globais
+void int_latitude_longitude(){
+    gps_estado_modo();
+
+    //latitude
+    lat = (gps_msg[1] -'0') * 10000000 + (gps_msg[2]-'0') * 1000000 + (gps_msg[4]-'0') * 100000;
+    lataux = ((gps_msg[5]-'0'));
+    lataux = (lataux * 1000); lataux = (lataux * 10); // Não estava dando certo fazer (gps_msg[5]-'0') * 10000
+    lat += lataux +  (gps_msg[6]-'0') * 1000 + (gps_msg[7]-'0') * 100 + (gps_msg[8]-'0') * 10 + (gps_msg[9]-'0');
+
+    //longitude
+    //longt = gps_msg[12] * 100000000; //Não precisa no brasil os valores variam de -73.9855° a -34.7937°
+    longt = (gps_msg[13]-'0') * 10000000 + (gps_msg[14]-'0') * 1000000 +(gps_msg[16]-'0') * 100000;
+    longtaux = (gps_msg[17] - '0');
+    longtaux = (longtaux * 1000); longtaux = (longtaux * 10); // Não estava dando certo fazer (gps_msg[5]-'0') * 10000
+    longt += longtaux + (gps_msg[18]-'0') * 1000 + (gps_msg[19]-'0') * 100 + (gps_msg[20]-'0') * 10 + (gps_msg[21]-'0');
+}
+//coloca os maiores e menores valores que o gps pode obter para não entrar em modo de furto
+void set_values_gps(){
+
+    /*
+     * Ruido obtido
+     * latitude = 132 == 200
+     * longitude = 237 == 300
+     *
+     * Ter cuidado, pois as vezes dá mais ruido do que obtido acima.
+     */
+    //chama a funçao responsavel por obter os valores atualizados do gps, armazena em um inteiro
+    int_latitude_longitude();
+
+    menorlatitude = lat - 200, maiorlatitude = lat + 200;
+    menorlongitude = longt - 300, maiorlongitude = longt + 300;
+}
+
+// Segue o mesmo principio do MPU
+// Se os novos valores forem maiores que os valores coletado no repouso + ruido. significa que houve furto
+char gps_furto(){
+    int i=0, alerta=0;
+
+    //chama a funçao responsavel por obter os valores atualizados do gps, armazena em um inteiro
+    int_latitude_longitude();
+
+    if(lat< menorlatitude || lat > maiorlatitude) alerta++;
+    if(longt < menorlongitude || longt > maiorlongitude) alerta++;
+
+    if(alerta == 0) return FALSE;
+
+    //recebeu o primeiro alerta de furto, entao checa durante 5 segundos
+    else if(alerta != 0){
+        //gprs_complete_str("Alerta");
+        //ser1_str("Alerta"); ser1_dec32u(lat);ser1_str("  ----- "); ser1_dec32u(longt); ser1_str("\n\r");
+        while(i<5){
+            //chama a funçao responsavel por obter os valores atualizados do gps, armazena em um inteiro
+            int_latitude_longitude();
+
+            if(lat< menorlatitude || lat > maiorlatitude) alerta++;
+            if(longt < menorlongitude || longt > maiorlongitude) alerta;
+            else alerta = 0;
+
+            if(alerta == 0){             //voltou para o estado normal
+                return FALSE;
+            }
+            else if(alerta == 4){       //foi furtado
+                return TRUE;
+            }
+            i++;
+            delay_10ms(200); //1 seg
+        }
+    }
+}
 ///////////////////////////////////////////////////////////////////  MPU  //////////////////////////////////////////////////////
 
 //Usando principalmente para checar o ruido com o MPU em repouso
@@ -201,7 +271,7 @@ void mpu_estado_modo(){
     char x;
     //int maiorgx = 0, menorgx = 0, maiorgy = 0, menorgy = 0, maiorgz = 0, menorgz = 0;
     //int amaiorx = 0, amenorx = 0, amaiory = 0, amenory = 0, amaiorz = 0, amenorz = 0;
-    int ax,ay,az,tp,gx,gy,gz;
+    //int ax,ay,az,tp,gx,gy,gz;
     int i=0;
     char vetor[14];
 
@@ -213,6 +283,7 @@ void mpu_estado_modo(){
     while(i<300){
         i++;
         mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
+
         ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
         ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
         az=vetor[ 4];    az=(az<<8)+vetor[ 5];
@@ -289,9 +360,10 @@ void mpu_estado_modo(){
 
 //Coloca os valores do estado de repouso do mpu e defino os maiores valores que cada variavel pode obter com MPU em repouso
 //sera chamada no estado dormente, onde ira definir os valores para as variaveis de aceleração e giroscopio
-void values_mpu(){
+//Tambem será utilizada quando for salvar na memoria e precisar pegar valores recentes. Não tera problema pois a checagem do MPU era principalmente
+// para caracterizar o Furto
+void set_values_mpu(){
     char x;
-    int ax,ay,az,tp,gx,gy,gz;
     char vetor[14];
 
     x=i2c_teste_adr(MPU_ADR);
@@ -337,7 +409,6 @@ void values_mpu(){
 char acel_furto(){
 
     char x;
-    int ax,ay,az,tp,gx,gy,gz;
     int i=0, alerta=0;
     char vetor[14];
 
@@ -368,8 +439,8 @@ char acel_furto(){
     //começa a checagem por 5 segundos
     //a cada segundo checa, Caso pare de acusar falha, retorna false, caso contrario checa até encerrar 5 segundos, se for verdadeiro retorna TRUE
     //
-    if(alerta != 0){
-        gprs_str("alerta\n\r");
+    else if(alerta != 0){
+        //gprs_str("alerta\n\r");
         while(i<5){
             mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
             ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
@@ -403,7 +474,6 @@ char acel_furto(){
 // que o dispositivo foi roubado
 char giro_furto(){
     char x;
-    int ax,ay,az,tp,gx,gy,gz;
     int i=0, alerta=0;
     char vetor[14];
 
@@ -434,8 +504,8 @@ char giro_furto(){
     //começa a checagem por 5 segundos
     //a cada segundo checa, Caso pare de acusar falha, retorna false, caso contrario checa até encerrar 5 segundos, se for verdadeiro retorna TRUE
     //
-    if(alerta != 0){
-        gprs_str("alerta\n\r");
+    else if(alerta != 0){
+        //gprs_str("alerta\n\r");
         while(i<5){
             mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
             ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
@@ -464,6 +534,27 @@ char giro_furto(){
     }
 }
 
+//pega apenas os 8 bits mais significativos do MPU e salva nas variaveis globais
+//Função sera chamada quando for gravar todos os dados na memoria
+void mpu_8bits(){
+
+    char x;
+    char vetor[14];
+
+    x=i2c_teste_adr(MPU_ADR);
+    if (x == FALSE){
+        return FALSE;
+    }
+
+    mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
+    ax=vetor[ 0];    //ax=(ax<<8)+vetor[ 1];
+    ay=vetor[ 2];   // ay=(ay<<8)+vetor[ 3];
+    az=vetor[ 4];   // az=(az<<8)+vetor[ 5];
+    tp=vetor[ 6];   // tp=(tp<<8)+vetor[ 7];
+    gx=vetor[ 8];  //  gx=(gx<<8)+vetor[ 9];
+    gy=vetor[10];   // gy=(gy<<8)+vetor[11];
+    gz=vetor[12];   // gz=(gz<<8)+vetor[13];
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////// ENVOLVE TODAS AS FUNÇÕES ////////////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@ void gprs_come_crlf(void);
 char gprs_xereta(char *cha);
 //////////////////////////////////////////////////////////////////////
 
+void gprs_complete_str(char *msg);
 void gprs_str(char *msg);
 void gprs_char(char x);
 

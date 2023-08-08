@@ -78,15 +78,19 @@ int main(void){
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
+
+      //  gprs_complete_str("resetando");
+       // resete();
+       // gprs_complete_str("resetou");
 //        Vou chamar a rotina de repouso
         //sel_estado();
- //       modo_rtc(14);    //Testar RTC
-        //alerta_2();
-        //dormente();
+        //modo_rtc(14);    //Testar RTC
+        //alerta_1();
+       dormente();
        // modo_gprmc(20);
        // modo_furto(26);
        // modo_mpu(20);
-        vigilia();
+        //vigilia();
 
 /*       ser1_str("Digite 1 para modo de teste de modos\n");
         ser1_str("Digite 2 para modo de execucao do programa final\n");

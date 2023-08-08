@@ -17,14 +17,22 @@ void estados_config(){
 void sel_estado(){
     char x;
 
-    if (gprs_tira(&x)==TRUE){
-        if (x == '\n'){
-            estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois já recebi o comando
-        }
-        else{
-            estado_comando[estado_i++] = x;         //armazena os caracteres dentro de estado_comando
-        }
-    }
+//    if (gprs_tira(&x)==TRUE){
+//        if (x == '\n'){
+//            estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois já recebi o comando
+//        }
+//        else if(x >= ' ' && x <= 'z'){              //garantir de receber apenas o que realmente quero, estava vindo caracteres loucos
+//            estado_comando[estado_i++] = x;         //armazena os caracteres dentro de estado_comando
+//        }
+//    }
+    while (gprs_tira(&x)==TRUE){
+         if (x == '\n'){
+             estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois já recebi o comando
+         }
+         else if(x >= ' ' && x <= 'z'){              //garantir de receber apenas o que realmente quero, estava vindo caracteres loucos
+             estado_comando[estado_i++] = x;         //armazena os caracteres dentro de estado_comando
+         }
+     }
 
     if(estado_y == 1){
         estado_y = 0;
@@ -49,6 +57,9 @@ void sel_estado(){
         else if(estado_comando[0] == '#' && estado_comando[1] == 'A' && estado_comando[2] == 'P' && estado_comando[3] == 'G' && estado_comando[4] == '#'){
             apagar();
         }
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'T' && estado_comando[3] == 'C'){
+             rtc_configure();
+        }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'D' && estado_comando[3] == ' ') { //Checa se é o comando de leitura das posições de memoria
             if(estado_comando[4] == 'n' && estado_comando[5] == '#'){
                 ler_n();
@@ -67,23 +78,26 @@ void sel_estado(){
 
 }
 
+// Realiza o resete do MSP por software
 void resete(){
-   // printa na serial gprs
-    gprs_char('$');              //demarca o inicio de texto
-    gprs_str("resete\r\n");
-    gprs_char(';');              //demarca o final de texto
+    PMMCTL0 = PMMPW | PMMSWPOR; // Configuração para realizar um software reset
 }
 
 void dormente(){
-    rtc_estado();
-    gps_estado_modo();
-    todos_dados();
-    gprs_str(toda_msg);
-    gprs_str("\n\r---------------\n\r");
+    while(TRUE){
+        sel_estado();
+
+        rtc_estado();
+        gps_estado_modo();
+        todos_dados();
+        gprs_complete_str(toda_msg);
+        gprs_complete_str("\n\r---------------\n\r");
+        delay_10ms(200); //1 seg
+    }
 }
 
 void vigilia(){
-    values_mpu();
+    set_values_mpu();
 
     while(TRUE){
         if(acel_furto()==FALSE){
@@ -97,8 +111,20 @@ void vigilia(){
 }
 
 void alerta_1(){
-    gprs_str("alerta_1\r\n");
-    gprs_str("alerta_1\r\n");
+    //gps_furto();
+    set_values_gps();
+    ser1_char(' ');ser1_dec32u(menorlatitude);ser1_char(' '); ser1_dec32u(maiorlatitude); ser1_str(" ---- ");
+    delay_10ms(100); //0,5 seg
+    ser1_dec32u(menorlongitude); ser1_char(' ');ser1_dec32u(maiorlongitude); ser1_str("\n\r");
+    delay_10ms(100); //0,5 seg
+    while(1){
+        if(gps_furto() == FALSE){
+            gprs_complete_str("OK");
+            ser1_dec32u(lat);ser1_str("   "); ser1_dec32u(longt); ser1_str("\n\r");
+        }
+        else if(gps_furto() == TRUE) gprs_complete_str("FURTADO");
+        delay_10ms(200); //1 seg
+    }
 }
 
 void alerta_2(){
@@ -150,6 +176,40 @@ void ler_n(){
 void ler_n_m(){
     gprs_str("ler_n_m\r\n");
     gprs_str("ler_n_m\r\n");
+}
+
+//Seta horario por gprs
+void rtc_configure(){
+    char vetor[3];
+
+    //Data (dd/mm/aa)
+    vetor[0]=16*(estado_comando[5]-0x30)+(estado_comando[6]-0x30);  //Dia
+    vetor[1]=16*(estado_comando[8]-0x30)+(estado_comando[9]-0x30);  //Mï¿½s
+    vetor[2]=16*(estado_comando[11]-0x30)+(estado_comando[12]-0x30);  //Ano
+    rtc_wr_vet(4,vetor,3);
+
+    // Hora (hh:mm:ss)
+    vetor[2]=16*(estado_comando[20]-0x30)+(estado_comando[21]-0x30);  //Segundos
+    vetor[1]=16*(estado_comando[17]-0x30)+(estado_comando[18]-0x30);  //Minutos
+    vetor[0]=16*(estado_comando[14]-0x30)+(estado_comando[15]-0x30);  //Horas
+    rtc_wr_vet(0,vetor,3);
+}
+
+//Precisa ser acertado
+//Coloca ou tira do baixo consumo
+void baixo_consumo(){
+    //coloca em baixo consumo
+    // Entrada do LPM0
+
+   __bis_SR_register(LPM0_bits | GIE); // Entra em LPM0 com interrupções habilitadas
+
+
+    //retira do baixo consumo
+    // Saída do LPM0
+
+        //não pode estar aqui, precisa estar dentro da interrção desejada
+//        __bic_SR_register_on_exit(LPM0_bits); // Remove o bit de LPM0 do registrador de status e sai do LPM0
+
 }
 
 void code_erro(){

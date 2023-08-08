@@ -6,6 +6,7 @@
 #include "Strings.h"
 //#include "Globais.h"                              //Estava dando erro ao deixar descomentada, dava conflito das variaveis globais
 #include "Serial.h"
+#include "srcs/Estados.h"
 
 // Escrever 16 bits em Decimal, com sinal e com zeros à esq
 void gprs_dec16(int dt){
@@ -97,6 +98,17 @@ char gprs_xereta(char *cha){
     *cha=gprs_fila[pout];
     return TRUE;
   }
+}
+
+// Imprimir uma string na USCI_A0
+// Escreve no padrão certo de envio de mensagem do Arapuka #---------#
+void gprs_complete_str(char *msg){
+    int i=0;
+    gprs_char('#');
+    while ( msg[i] != '\0'){
+        gprs_char(msg[i++]);
+    }
+    gprs_char('#');
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
