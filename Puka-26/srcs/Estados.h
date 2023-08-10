@@ -9,8 +9,8 @@ volatile unsigned int estado_y;
 volatile char estado_comando[24];
 
 //salva todos os dados necessarios em uma string, sera string pronta para salvar na memoria
-void todos_dados();
-volatile char toda_msg[45];
+void todos_dados(int mpu);
+volatile char toda_msg[70];
 
 //////////////////////////////////////////////// GLOBAIS PARA O RTC ///////////////////////////////////////////////////////
 volatile char rtc_vetor[7];
@@ -56,6 +56,8 @@ void ler_n_m();
 void rtc_configure();
 void baixo_consumo();
 void code_erro();
+void email();
+void status();
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////// MODOS_ESTADOS e variaveis /////////////////////////////////////////////////////////
@@ -79,8 +81,9 @@ void int_latitude_longitude();
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////// MPU
+void mpu_values();
 void mpu_estado_modo();
-void set_values_mpu();
+void repouso_values_mpu();
 char acel_furto();
 char giro_furto();
 void mpu_8bits();
@@ -88,5 +91,6 @@ void mpu_8bits();
 
 ////////////////////////////////////////////////// Outras funções e variaveis/////////////////////////////////////////////////////////
 int charToInt(char c);
+void IntToChar(int number, char *buffer);
 
 #endif /* SRCS_ESTADOS_H_ */

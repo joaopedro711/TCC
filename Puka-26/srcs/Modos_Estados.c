@@ -21,7 +21,8 @@ void rtc_estado(){
     str_data_hora(rtc_vetor,rtc_msg);
 }
 
-//Atualiza o vetor que contem a data e hora do ultimo alerta de roubo
+//Atualiza o vetor que contem a data e hora refente ao ultimo envio
+// So para saber se passou 1 min e 1h
 void atualiza_data_hora(int min, int hora){
     int i;
     //atualiza minutos
@@ -141,10 +142,7 @@ char passou_1_hora(){
 
 }
 
-////////////////////////////////////////////////// Transforma dois char em inteiro /////////////////////////////////////////
-int charToInt(char c) {
-    return c - '0';
-}
+
 
 //coloca todos os valores para checagem se passou 1 min em forma de dezenas de inteiros
 void coloca_min_dezena(){
@@ -266,6 +264,20 @@ char gps_furto(){
 }
 ///////////////////////////////////////////////////////////////////  MPU  //////////////////////////////////////////////////////
 
+//Armazena os valores de ax, ay, az, gx, gy e gz
+void mpu_values(){
+    char vetor[14];
+    mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
+
+    ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
+    ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
+    az=vetor[ 4];    az=(az<<8)+vetor[ 5];
+    tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
+    gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
+    gy=vetor[10];    gy=(gy<<8)+vetor[11];
+    gz=vetor[12];    gz=(gz<<8)+vetor[13];
+}
+
 //Usando principalmente para checar o ruido com o MPU em repouso
 void mpu_estado_modo(){
     char x;
@@ -273,7 +285,7 @@ void mpu_estado_modo(){
     //int amaiorx = 0, amenorx = 0, amaiory = 0, amenory = 0, amaiorz = 0, amenorz = 0;
     //int ax,ay,az,tp,gx,gy,gz;
     int i=0;
-    char vetor[14];
+
 
     x=i2c_teste_adr(MPU_ADR);
     if (x == FALSE){
@@ -282,15 +294,7 @@ void mpu_estado_modo(){
 
     while(i<300){
         i++;
-        mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-
-        ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
-        ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
-        az=vetor[ 4];    az=(az<<8)+vetor[ 5];
-        tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
-        gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
-        gy=vetor[10];    gy=(gy<<8)+vetor[11];
-        gz=vetor[12];    gz=(gz<<8)+vetor[13];
+        mpu_values();
 
         ser1_str("Ax"); ser1_spc(1);
         ser1_dec16(ax); ser1_spc(1);
@@ -362,23 +366,15 @@ void mpu_estado_modo(){
 //sera chamada no estado dormente, onde ira definir os valores para as variaveis de aceleração e giroscopio
 //Tambem será utilizada quando for salvar na memoria e precisar pegar valores recentes. Não tera problema pois a checagem do MPU era principalmente
 // para caracterizar o Furto
-void set_values_mpu(){
+void repouso_values_mpu(){
     char x;
-    char vetor[14];
 
     x=i2c_teste_adr(MPU_ADR);
     if (x == FALSE){
         return;
     }
 
-    mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-    ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
-    ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
-    az=vetor[ 4];    az=(az<<8)+vetor[ 5];
-    tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
-    gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
-    gy=vetor[10];    gy=(gy<<8)+vetor[11];
-    gz=vetor[12];    gz=(gz<<8)+vetor[13];
+    mpu_values();
 
     /*
      * //valores obtidos de um MPU especifico, é preciso verificar esse ruido para todos os outros
@@ -410,21 +406,13 @@ char acel_furto(){
 
     char x;
     int i=0, alerta=0;
-    char vetor[14];
 
     x=i2c_teste_adr(MPU_ADR);
     if (x == FALSE){
         return FALSE;
     }
 
-    mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-    ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
-    ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
-    az=vetor[ 4];    az=(az<<8)+vetor[ 5];
-    tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
-    gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
-    gy=vetor[10];    gy=(gy<<8)+vetor[11];
-    gz=vetor[12];    gz=(gz<<8)+vetor[13];
+    mpu_values();
 
     //Checa se houve aleração por parte do acelerometro
     if(ax < amenorx || ax > amaiorx) alerta++;
@@ -442,14 +430,7 @@ char acel_furto(){
     else if(alerta != 0){
         //gprs_str("alerta\n\r");
         while(i<5){
-            mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-            ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
-            ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
-            az=vetor[ 4];    az=(az<<8)+vetor[ 5];
-            tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
-            gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
-            gy=vetor[10];    gy=(gy<<8)+vetor[11];
-            gz=vetor[12];    gz=(gz<<8)+vetor[13];
+            mpu_values();
 
             //Checa se houve aleração por parte do gisroscopio
             if(ax < amenorx || gx > amaiorx) alerta++;
@@ -475,21 +456,13 @@ char acel_furto(){
 char giro_furto(){
     char x;
     int i=0, alerta=0;
-    char vetor[14];
 
     x=i2c_teste_adr(MPU_ADR);
     if (x == FALSE){
         return FALSE;
     }
 
-    mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-    ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
-    ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
-    az=vetor[ 4];    az=(az<<8)+vetor[ 5];
-    tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
-    gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
-    gy=vetor[10];    gy=(gy<<8)+vetor[11];
-    gz=vetor[12];    gz=(gz<<8)+vetor[13];
+    mpu_values();
 
     //Checa se houve aleração por parte do gisroscopio
     if(gx < menorgx || gx > maiorgx) alerta++;
@@ -507,14 +480,7 @@ char giro_furto(){
     else if(alerta != 0){
         //gprs_str("alerta\n\r");
         while(i<5){
-            mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-            ax=vetor[ 0];    ax=(ax<<8)+vetor[ 1];
-            ay=vetor[ 2];    ay=(ay<<8)+vetor[ 3];
-            az=vetor[ 4];    az=(az<<8)+vetor[ 5];
-            tp=vetor[ 6];    tp=(tp<<8)+vetor[ 7];
-            gx=vetor[ 8];    gx=(gx<<8)+vetor[ 9];
-            gy=vetor[10];    gy=(gy<<8)+vetor[11];
-            gz=vetor[12];    gz=(gz<<8)+vetor[13];
+            mpu_values();
 
             //Checa se houve aleração por parte do gisroscopio
             if(gx < menorgx || gx > maiorgx) alerta++;
@@ -539,30 +505,62 @@ char giro_furto(){
 void mpu_8bits(){
 
     char x;
-    char vetor[14];
 
     x=i2c_teste_adr(MPU_ADR);
     if (x == FALSE){
-        return FALSE;
+        x=i2c_teste_adr(MPU_ADR);
     }
 
-    mpu_rd_vet(ACCEL_XOUT_H, vetor, 14);    //Ler 14 regs
-    ax=vetor[ 0];    //ax=(ax<<8)+vetor[ 1];
-    ay=vetor[ 2];   // ay=(ay<<8)+vetor[ 3];
-    az=vetor[ 4];   // az=(az<<8)+vetor[ 5];
-    tp=vetor[ 6];   // tp=(tp<<8)+vetor[ 7];
-    gx=vetor[ 8];  //  gx=(gx<<8)+vetor[ 9];
-    gy=vetor[10];   // gy=(gy<<8)+vetor[11];
-    gz=vetor[12];   // gz=(gz<<8)+vetor[13];
+    mpu_values();
+    //transformando em valores de 8 bits com sinal
+    ax = ax>>8; ay = ay>>8; az = az>>8;
+    gx = gx>>8; gy = gy>>8; gz = az>>8;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////// ENVOLVE TODAS AS FUNÇÕES ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//coloca Modo, horario, latitude, longitude, acelerometro, giroscopio e "\n\r"
-void todos_dados(){
-    int i;
+
+////////////////////////////////////////////////// Transforma char em inteiro /////////////////////////////////////////
+int charToInt(char c) {
+    return c - '0';
+}
+////////////////////////////////////////////////// Transforma inteiro em char /////////////////////////////////////////
+void IntToChar(int number, char *buffer){
+    int i = 0, y=0;
+    int isNegative = 0;
+    char auxbuff[5];
+
+    // Verifica se o número é negativo
+    if (number < 0) {
+        isNegative = 1;
+        number = - number; // Torna o número positivo para a conversão
+    }
+
+    // Converte cada dígito para um caractere
+    do {
+        auxbuff[i++] = number % 10 + '0'; // Converte o dígito para o caractere ASCII
+        number /= 10;
+    } while (number > 0);
+
+    // Adiciona sinal negativo, se necessário
+    if (isNegative) {
+        auxbuff[i++] = '-';
+    }
+
+    i--;                            //para tirar o i =='\0' do fim
+    while(i>-1){
+        buffer[y++] = auxbuff[i--];
+    }
+    buffer[y] = '\0'; // Termina a string com o caractere nulo
+}
+
+//coloca Modo, horario, latitude, longitude
+// Se vier o argumento TRUE, significa que é para colocar os valores do MPU (usada para salvar na memoria)
+void todos_dados(int mpu){
+    unsigned int i,y;
+    char buffer[5]; //8 bits podem representar apenas 3 caracteres, contando com '\0' == 4. Porem pode ter negativo entao coloquei mais 1 posição
 
     //salvar rtc
     for(i=0; i< 17; i++){
@@ -594,9 +592,68 @@ void todos_dados(){
     else if(gps_msg[11]== '-'){
         toda_msg[43] = 'W';
     }
-
-    //salvar acelerometro e giroscopio
-
     //receber caracter nulo na ultima posição
     toda_msg[44]='\0';
+
+    //salvar acelerometro e giroscopio
+    //Precisa colocar o caractere de espaço na posição 44 e guardar os novos valores referentes ao MPU
+    if(mpu == TRUE){
+        toda_msg[44]=' '; i=45;
+
+        mpu_8bits();
+
+        //Acelerometro
+        toda_msg[i++]='A'; toda_msg[i++]='='; toda_msg[i++]=' ';
+        //ax
+        IntToChar(ax, buffer);
+        y=0;
+        while(buffer[y] != '\0'){
+            toda_msg[i++] = buffer[y++];
+        }
+        toda_msg[i++]= ' ';
+
+        //ay
+        IntToChar(ay, buffer);
+        y=0;
+        while(buffer[y] != '\0'){
+            toda_msg[i++] = buffer[y++];
+        }
+        toda_msg[i++]= ' ';
+
+        //az
+        IntToChar(az, buffer);
+        y=0;
+        while(buffer[y] != '\0'){
+            toda_msg[i++] = buffer[y++];
+        }
+        toda_msg[i++]= ','; toda_msg[i++]= ' ';
+
+        //Giroscopio
+        toda_msg[i++]='G'; toda_msg[i++]='='; toda_msg[i++]=' ';
+
+        //gx
+        IntToChar(gx, buffer);
+        y=0;
+        while(buffer[y] != '\0'){
+            toda_msg[i++] = buffer[y++];
+        }
+        toda_msg[i++]= ' ';
+
+        //gy
+        IntToChar(gy, buffer);
+        y=0;
+        while(buffer[y] != '\0'){
+            toda_msg[i++] = buffer[y++];
+        }
+        toda_msg[i++]= ' ';
+
+        //gz
+        IntToChar(gz, buffer);
+        y=0;
+        while(buffer[y] != '\0'){
+            toda_msg[i++] = buffer[y++];
+        }
+        toda_msg[i]= '\0';
+
+    }
 }

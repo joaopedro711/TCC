@@ -6,6 +6,7 @@
 #include "Defines.h"
 #include "Serial.h"
 #include "Modos.h"
+#include "Timer.h"
 
 void estados_config(){
     estado_i=0;
@@ -61,15 +62,23 @@ void sel_estado(){
              rtc_configure();
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'D' && estado_comando[3] == ' ') { //Checa se é o comando de leitura das posições de memoria
-            if(estado_comando[4] == 'n' && estado_comando[5] == '#'){
+            //Significa que eh o comando de ler n primeiras posições
+            if(estado_comando[5] == '#'){
                 ler_n();
             }
-            else if (estado_comando[4] == 'n' && estado_comando[5] == ' ' && estado_comando[6] == 'm' && estado_comando[7] == '#'){
+            //Significa que eh o comando de ler n m posições (#RD n m#)
+            else if (estado_comando[5] == ' ' &&  estado_comando[7] == '#'){
                 ler_n_m();
             }
-            else{
-                code_erro();
-            }
+//            else{
+//                code_erro();
+//            }
+        }
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'M' && estado_comando[2] == 'A' && estado_comando[3] == 'I' && estado_comando[4] == 'L' && estado_comando[5] == '#'){
+            email();
+        }
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'S' && estado_comando[2] == 'T' && estado_comando[3] == 'A' && estado_comando[4] == 'T' && estado_comando[5] == '#'){
+            status();
         }
         else{
             code_erro();
@@ -87,17 +96,17 @@ void dormente(){
     while(TRUE){
         sel_estado();
 
-        rtc_estado();
-        gps_estado_modo();
-        todos_dados();
-        gprs_complete_str(toda_msg);
-        gprs_complete_str("\n\r---------------\n\r");
-        delay_10ms(200); //1 seg
+//        rtc_estado();
+//        gps_estado_modo();
+//        todos_dados(FALSE);
+//        gprs_complete_str(toda_msg);
+//        gprs_complete_str("\n\r---------------\n\r");
+//        delay_10ms(200); //1 seg
     }
 }
 
 void vigilia(){
-    set_values_mpu();
+    repouso_values_mpu();
 
     while(TRUE){
         if(acel_furto()==FALSE){
@@ -145,7 +154,7 @@ void alerta_2(){
             //pega dados do gps
             gps_estado_modo();
             //junta todos os dados necessarios em apenas uma string
-            todos_dados();
+            todos_dados(FALSE);
             gprs_str(toda_msg);
         }
         if(passou_1_hora()==TRUE){
@@ -159,8 +168,12 @@ void alerta_2(){
 }
 
 void suspeito(){
-    gprs_str("suspeito\r\n");
-    gprs_str("suspeito\r\n");
+    rtc_estado();
+    gps_estado_modo();
+    //argumento FALSE para receber apenas os valores do RTC + GPS
+    todos_dados(TRUE);
+    gprs_complete_str(toda_msg);
+    delay_10ms(200);
 }
 
 void apagar(){
@@ -213,6 +226,19 @@ void baixo_consumo(){
 }
 
 void code_erro(){
-    gprs_str("Deu ruim, mande novamente o comando do estado desejado!\r\n");
-    gprs_str("----------------------------------\r\n");
+    gprs_complete_str("ERROR");
+}
+
+// Envia RTC + GPS (conteúdo do email)
+void email(){
+    rtc_estado();
+    gps_estado_modo();
+    //argumento FALSE para receber apenas os valores do RTC + GPS
+    todos_dados(FALSE);
+    gprs_complete_str(toda_msg);
+}
+
+// retorna para o ESP32, dizendo que está online
+void status(){
+    gprs_complete_str("ONLINE");
 }

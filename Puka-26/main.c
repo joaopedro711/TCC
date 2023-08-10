@@ -78,7 +78,8 @@ int main(void){
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
-
+        //dormente();
+        suspeito();
       //  gprs_complete_str("resetando");
        // resete();
        // gprs_complete_str("resetou");
@@ -86,7 +87,7 @@ int main(void){
         //sel_estado();
         //modo_rtc(14);    //Testar RTC
         //alerta_1();
-       dormente();
+
        // modo_gprmc(20);
        // modo_furto(26);
        // modo_mpu(20);
