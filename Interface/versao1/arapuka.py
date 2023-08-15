@@ -35,30 +35,62 @@ while True:
     event, values = window.read()
 
     if event == sg.WINDOW_CLOSED:
+        window.close()
         break
 
     #Eventos dos Estados
     elif event == 'Dormente':
+        window.hide()
         eventos.dormente()
+        window.un_hide()
+
     elif event == 'Vigilia':
-        eventos.vigilia()    
+        window.hide()
+        eventos.vigilia() 
+        window.un_hide()  
+
     elif event == 'Alerta 1':
+        window.hide()
         eventos.alerta_1()
+        window.un_hide()
+
     elif event == 'Alerta 2':
+        window.hide()
         eventos.alerta_2() 
+        window.un_hide()
+
     elif event == 'Suspeito':
+        window.hide()
         eventos.suspeito()
+        window.un_hide()
 
     #Eventos das Ações
     elif event == 'Status':
-        eventos.status()    
+        window.hide()
+        eventos.status()   
+        window.un_hide() 
+
     elif event == 'Rd n':
+        window.hide()
         eventos.rd_n()
+        window.un_hide()
+
     elif event == 'Rd n_m':
-        eventos.rd_n_m()     
+        window.hide()
+        eventos.rd_n_m()  
+        window.un_hide() 
+
     elif event == 'Apagar Memoria':
-        eventos.apagar_memoria()    
+        window.hide()
+        eventos.apagar_memoria()
+        window.un_hide()  
+
     elif event == 'E-mail':
+        window.hide()
         eventos.email()
+        window.un_hide()
+
     elif event == 'Resete':
-        eventos.resete()         
+        window.hide()
+        eventos.resete()
+        window.un_hide()         
