@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import eventos 
+import requisicoes
 
 app_title = 'Arapuka v1'
 themes = sorted(list(sg.LOOK_AND_FEEL_TABLE.keys()))
@@ -10,29 +11,29 @@ sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth
 # gui design
 def create_window():
     # main tab
-    layout = [[sg.T('', size=(15, 1)), sg.Text('Arapuka', font='Any 30')],
+    layout = [[sg.T('', size=(15, 1)), sg.Text('Arapuka', font='Any 40')],
               
                 [sg.Text('\n\nEstados:')],
                 # botões dos estados
-                [sg.Button('Dormente', size=(10, 1), pad=(10, 10)), sg.Button('Vigilia', size=(10, 1), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 1), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 1), pad=(10, 10))], 
-                [sg.Button('Suspeito', size=(10, 1), pad=(10, 10))],
+                [sg.Button('Dormente', size=(10, 2), pad=(10, 10)), sg.Button('Vigilia', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 2), pad=(10, 10))], 
+                [sg.Button('Suspeito', size=(10, 2), pad=(10, 10))],
                 
                 [sg.Text('\n\nAções:')],
                 #botoes das açoes extras
-                [sg.Button('Status', size=(10, 1), pad=(10, 20)), sg.Button('Rd n', size=(10, 1), pad=(10, 20)), sg.Button('Rd n_m', size=(10, 1), pad=(10, 20)), sg.Button('Apagar Memoria', size=(10, 1), pad=(10, 20))],
-                [sg.Button('E-mail', size=(10, 1), pad=(10, 20)), sg.Button('Resete', size=(10, 1), pad=(10, 20))],                   
+                [sg.Button('Status', size=(10, 2), pad=(10, 20)), sg.Button('Rd n', size=(10, 2), pad=(10, 20)), sg.Button('Rd n_m', size=(10, 2), pad=(10, 20)), sg.Button('Apagar Memoria', size=(10, 2), pad=(10, 20))],
+                [sg.Button('E-mail', size=(10, 2), pad=(10, 20)), sg.Button('Resete', size=(10, 2), pad=(10, 20))],                   
             ]
 
 
 
     # window
-    return sg.Window(title=app_title, layout=layout, size=(500, 450), icon='arapuka.ico')
+    return sg.Window(title=app_title, layout=layout, size=(500, 500), icon='arapuka.ico')
 
 window = create_window()
 
 while True:
     event, values = window.read()
-    
+
     if event == sg.WINDOW_CLOSED:
         break
 
