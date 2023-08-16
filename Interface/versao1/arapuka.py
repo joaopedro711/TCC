@@ -1,6 +1,8 @@
 import PySimpleGUI as sg
-import eventos 
+import eventos
 import requisicoes
+import auxiliares
+
 
 app_title = 'Arapuka v1'
 themes = sorted(list(sg.LOOK_AND_FEEL_TABLE.keys()))
@@ -34,8 +36,8 @@ window = create_window()
 while True:
     event, values = window.read()
 
-    if event == sg.WINDOW_CLOSED:
-        window.close()
+    if event == sg.WINDOW_CLOSED:   
+        window.close() 
         break
 
     #Eventos dos Estados
@@ -93,4 +95,6 @@ while True:
     elif event == 'Resete':
         window.hide()
         eventos.resete()
-        window.un_hide()         
+        window.un_hide()  
+
+window.close()        
