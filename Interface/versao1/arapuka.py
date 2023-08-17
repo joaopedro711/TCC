@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+#import threading
 import eventos
 import requisicoes
 import auxiliares
@@ -13,23 +14,26 @@ sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth
 # gui design
 def create_window():
     # main tab
-    layout = [[sg.T('', size=(15, 1)), sg.Text('Arapuka', font='Any 40')],
-              
-                [sg.Text('\n\nEstados:')],
+    layout = [[sg.T('', size=(17, 1)), sg.Text('Arapuka', font='Any 50')],
+
+                [sg.Text('\n\n')],
+                [sg.Button('Log', size=(10, 2), pad=(10, 10))],
+                [sg.Text('Estados:')],
                 # botões dos estados
-                [sg.Button('Dormente', size=(10, 2), pad=(10, 10)), sg.Button('Vigilia', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 2), pad=(10, 10))], 
-                [sg.Button('Suspeito', size=(10, 2), pad=(10, 10))],
+                [sg.Button('Dormente', size=(10, 2), pad=(10, 10)), sg.Button('Vigilia', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 2), pad=(10, 10)), sg.Button('Suspeito', size=(10, 2), pad=(10, 10))], 
+                
                 
                 [sg.Text('\n\nAções:')],
                 #botoes das açoes extras
-                [sg.Button('Status', size=(10, 2), pad=(10, 20)), sg.Button('Rd n', size=(10, 2), pad=(10, 20)), sg.Button('Rd n_m', size=(10, 2), pad=(10, 20)), sg.Button('Apagar Memoria', size=(10, 2), pad=(10, 20))],
-                [sg.Button('E-mail', size=(10, 2), pad=(10, 20)), sg.Button('Resete', size=(10, 2), pad=(10, 20))],                   
+                [sg.Button('Status', size=(10, 2), pad=(10, 20)), sg.Button('Rd n', size=(10, 2), pad=(10, 20)), sg.Button('Rd n_m', size=(10, 2), pad=(10, 20)), sg.Button('Apagar Memoria', size=(10, 2), pad=(10, 20)), sg.Button('E-mail', size=(10, 2), pad=(10, 20))],
+                [sg.Button('Resete', size=(10, 2), pad=(10, 20)), sg.Button('Set RTC', size=(10, 2), pad=(10, 20))],   
+                                
             ]
 
 
 
     # window
-    return sg.Window(title=app_title, layout=layout, size=(500, 500), icon='arapuka.ico')
+    return sg.Window(title=app_title, layout=layout, size=(600, 550), icon='arapuka.ico')
 
 window = create_window()
 
@@ -37,8 +41,12 @@ while True:
     event, values = window.read()
 
     if event == sg.WINDOW_CLOSED:   
-        window.close() 
         break
+
+    elif event == 'Log':
+        window.hide()
+        eventos.log()
+        window.un_hide()
 
     #Eventos dos Estados
     elif event == 'Dormente':
@@ -95,6 +103,15 @@ while True:
     elif event == 'Resete':
         window.hide()
         eventos.resete()
-        window.un_hide()  
+        window.un_hide()
+
+    elif event == 'Set RTC':
+        window.hide()
+        eventos.rtc()
+        window.un_hide()     
+
+#precisa entrar aqui, porém nao esta entrando
+if eventos.update_thread is not None and eventos.update_thread.is_alive():
+    eventos.update_thread.join()
 
 window.close()        

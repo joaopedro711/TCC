@@ -20,6 +20,18 @@ def post_comando(comando):
         return f"Erro no POST request: {e}"       
 
 
+#posta mensagem em branco na url /resposta, serve para pegar só uma vez o conteúdo
+def delete_resposta():
+    # Cabeçalhos da requisição
+    headers = {
+    'Content-Type': 'text/html'
+    }
+    for i in range(5):
+        response = requests.post(url_resposta, headers=headers, data='')
+        if response.status_code == 200:
+            return 
+           
+
 #pega mensagem em qualquer url
 # a url eh definida na threading.Thread(target=update_console, args=(new_window['OutputGet'], requisicoes.url_comando))  
 def get_resposta(url):

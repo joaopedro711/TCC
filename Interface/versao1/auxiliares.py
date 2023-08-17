@@ -30,6 +30,8 @@ def update_console(output_elem, url):
         #Mensagem que mostra quando não foi postada nenhuma mensagem desde que o site foi iniciado
         if resposta != "Nenhuma mensagem_resposta foi postada ainda.":
             output_elem.update(value=output_elem.get() + '\n' + resposta)
+            #apaga a ultima resposta, garante que vai pegar apenas uma vez a resposta
+            requisicoes.delete_resposta()
         time.sleep(2)
 
 ############################################################################################################

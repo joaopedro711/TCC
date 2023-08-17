@@ -1,11 +1,18 @@
 import PySimpleGUI as sg
 import threading
+import datetime
 import requisicoes
 import auxiliares
 
+global update_thread
+update_thread = None
+
+def log():
+    sg.popup('Log')
 
 # Funções para cada botão dos Estados
 def dormente():
+    ###################################################################################################     
     #envia a requisição POST
     post_result = requisicoes.post_comando("#DMT#")
 
@@ -22,14 +29,16 @@ def dormente():
     while True:
         event, values = new_window.read()
         if event == sg.WINDOW_CLOSED or event == 'Fechar':
-            if update_thread is not None and update_thread.is_alive():
-                update_thread.join()
+            # if update_thread is not None and update_thread.is_alive():
+            #     update_thread.join()
             new_window.close()
             break
+    ###################################################################################################     
 
        
 
 def vigilia():
+    ################################################################################################### 
     #envia a requisição POST
     post_result = requisicoes.post_comando("#VIG#")
 
@@ -37,7 +46,8 @@ def vigilia():
     new_window = auxiliares.console_duo("Vigilia")
 
     print(post_result, file=new_window["OutputPost"])   #Coloca se conseguiu enviar a mensagem ou não
-    
+    print("Estado Vigilia", file=new_window["OutputPost"])
+
     #Requisição GET
     update_thread = threading.Thread(target=auxiliares.update_console, args=(new_window['OutputGet'], requisicoes.url_resposta))
     update_thread.start()
@@ -45,10 +55,11 @@ def vigilia():
     while True:
         event, values = new_window.read()
         if event == sg.WINDOW_CLOSED or event == 'Fechar':
-            if update_thread is not None and update_thread.is_alive():
-                update_thread.join()
+            # if update_thread is not None and update_thread.is_alive():
+            #     update_thread.join()
             new_window.close()
             break
+    ###################################################################################################     
 
 def alerta_1():
     sg.popup('Botão 3 pressionado')
@@ -82,7 +93,7 @@ def rd_n():
             new_window = auxiliares.console_duo("Leitura n Registros")
 
             print(post_result, file=new_window["OutputPost"])   #Coloca se conseguiu enviar a mensagem ou não
-            print("Pedido de leitura de n Registros enviado!", file=new_window["OutputPost"])
+            print(f"Pedido de leitura de {number_n} Registros enviado!", file=new_window["OutputPost"])
 
             #Requisição GET
             update_thread = threading.Thread(target=auxiliares.update_console, args=(new_window['OutputGet'], requisicoes.url_resposta))
@@ -91,8 +102,8 @@ def rd_n():
             while True:
                 event, values = new_window.read()
                 if event == sg.WINDOW_CLOSED or event == 'Fechar':
-                    if update_thread is not None and update_thread.is_alive():
-                        update_thread.join()
+                    # if update_thread is not None and update_thread.is_alive():
+                    #     update_thread.join()
                     new_window.close()
                     break
     ###################################################################################################   
@@ -121,7 +132,7 @@ def rd_n_m():
                 new_window = auxiliares.console_duo("Leitura n até m Registros")
 
                 print(post_result, file=new_window["OutputPost"])   #Coloca se conseguiu enviar a mensagem ou não
-                print("Pedido de leitura de n até m Registros enviado!", file=new_window["OutputPost"])
+                print(f"Pedido de leitura do {number_n}° até o {number_m}° Registro enviado!", file=new_window["OutputPost"])
 
                 #Requisição GET
                 update_thread = threading.Thread(target=auxiliares.update_console, args=(new_window['OutputGet'], requisicoes.url_resposta))
@@ -130,8 +141,8 @@ def rd_n_m():
                 while True:
                     event, values = new_window.read()
                     if event == sg.WINDOW_CLOSED or event == 'Fechar':
-                        if update_thread is not None and update_thread.is_alive():
-                            update_thread.join()
+                        # if update_thread is not None and update_thread.is_alive():
+                        #     update_thread.join()
                         new_window.close()
                         break
     ################################################################################################### 
@@ -173,15 +184,21 @@ def email():
                 while True:
                     event, values = new_window.read()
                     if event == sg.WINDOW_CLOSED or event == 'Fechar':
-                        if update_thread is not None and update_thread.is_alive():
-                            update_thread.join()
+                        # if update_thread is not None and update_thread.is_alive():
+                        #     update_thread.join()
                         new_window.close()
                         break
     ###################################################################################################                 
             else:
-                sg.popup_error('E-mail inválido. Por favor, digite novamente.')
+                sg.popup_error('E-mail inválido. Por favor, digite novamente.', title="E-mail inválido", icon='arapuka.ico')
     window.close()        
 
 def resete():
     sg.popup('Botão 11 pressionado')
 
+def rtc():
+    agora = datetime.datetime.now()
+    data_hora_formatada = agora.strftime("%d/%m/%y %H:%M:%S")
+    #envia a requisição POST
+    post_result = requisicoes.post_comando(f"#RTC {data_hora_formatada}#")
+    sg.popup(f"{post_result}\nReal Time Clock: {data_hora_formatada}", title="Data e Hora", icon='arapuka.ico')
