@@ -1,11 +1,7 @@
 import PySimpleGUI as sg
-#import threading
 import eventos
-import requisicoes
-import auxiliares
 
-
-app_title = 'Arapuka v1'
+app_title = 'Arapuka'
 themes = sorted(list(sg.LOOK_AND_FEEL_TABLE.keys()))
 sg.ChangeLookAndFeel('DarkBlack')
 sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
@@ -110,8 +106,8 @@ while True:
         eventos.rtc()
         window.un_hide()     
 
-#precisa entrar aqui, porém nao esta entrando
+
 if eventos.update_thread is not None and eventos.update_thread.is_alive():
     eventos.update_thread.join()
 
-window.close()        
+window.close()   
