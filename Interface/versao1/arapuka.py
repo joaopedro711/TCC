@@ -1,4 +1,7 @@
 import PySimpleGUI as sg
+from PIL import Image
+import io
+import time
 import eventos
 
 app_title = 'Arapuka'
@@ -6,6 +9,24 @@ themes = sorted(list(sg.LOOK_AND_FEEL_TABLE.keys()))
 sg.ChangeLookAndFeel('DarkBlack')
 sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
 
+###########################################################################################################
+def introduction_animation():
+    # Carregar e exibir a imagem de introdução
+    intro_image = Image.open('arapuka.png')  # Substitua pelo caminho da sua imagem
+    intro_image.thumbnail((300, 300))  # Redimensionar a imagem para caber na tela
+    bio = io.BytesIO()
+    intro_image.save(bio, format="PNG")
+    layout_intro = [
+        [sg.Image(data=bio.getvalue())]
+    ]
+    window_intro = sg.Window('Arapuka', layout_intro, finalize=True,icon='arapuka.ico')
+
+    # Aguardar um tempo curto para exibir a imagem de introdução
+    sg.popup_quick_message('Carregando...')
+    time.sleep(1)
+    # Fechar a janela de introdução e abrir a janela principal
+    window_intro.close()
+###########################################################################################################
 
 # gui design
 def create_window():
@@ -31,6 +52,7 @@ def create_window():
     # window
     return sg.Window(title=app_title, layout=layout, size=(600, 550), icon='arapuka.ico')
 
+introduction_animation()
 window = create_window()
 
 while True:
