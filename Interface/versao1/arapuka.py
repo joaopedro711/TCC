@@ -2,7 +2,14 @@ import PySimpleGUI as sg
 from PIL import Image
 import io
 import time
-import eventos
+import sys
+import os
+
+diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+srcs_path = os.path.abspath(os.path.join(diretorio_atual,'.', 'srcs'))
+sys.path.insert(1,srcs_path)
+
+from srcs.eventos import *
 
 app_title = 'Arapuka'
 themes = sorted(list(sg.LOOK_AND_FEEL_TABLE.keys()))
@@ -63,73 +70,73 @@ while True:
 
     elif event == 'Log':
         window.hide()
-        eventos.log()
+        log()
         window.un_hide()
 
     #Eventos dos Estados
     elif event == 'Dormente':
         window.hide()
-        eventos.dormente()
+        dormente()
         window.un_hide()
 
     elif event == 'Vigilia':
         window.hide()
-        eventos.vigilia() 
+        vigilia() 
         window.un_hide()  
 
     elif event == 'Alerta 1':
         window.hide()
-        eventos.alerta_1()
+        alerta_1()
         window.un_hide()
 
     elif event == 'Alerta 2':
         window.hide()
-        eventos.alerta_2() 
+        alerta_2() 
         window.un_hide()
 
     elif event == 'Suspeito':
         window.hide()
-        eventos.suspeito()
+        suspeito()
         window.un_hide()
 
     #Eventos das Ações
     elif event == 'Status':
         window.hide()
-        eventos.status()   
+        status()   
         window.un_hide() 
 
     elif event == 'Rd n':
         window.hide()
-        eventos.rd_n()
+        rd_n()
         window.un_hide()
 
     elif event == 'Rd n_m':
         window.hide()
-        eventos.rd_n_m()  
+        rd_n_m()  
         window.un_hide() 
 
     elif event == 'Apagar Memoria':
         window.hide()
-        eventos.apagar_memoria()
+        apagar_memoria()
         window.un_hide()  
 
     elif event == 'E-mail':
         window.hide()
-        eventos.email()
+        email()
         window.un_hide()
 
     elif event == 'Resete':
         window.hide()
-        eventos.resete()
+        resete()
         window.un_hide()
 
     elif event == 'Set RTC':
         window.hide()
-        eventos.rtc()
+        rtc()
         window.un_hide()     
 
 
-if eventos.update_thread is not None and eventos.update_thread.is_alive():
-    eventos.update_thread.join()
+if update_thread is not None and update_thread.is_alive():
+    update_thread.join()
 
 window.close()   
