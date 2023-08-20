@@ -185,7 +185,7 @@ def estado_duo_com_mapa(comando, estado, descricao):
                             pass
 
                     except ValueError:
-                        sg.popup_error('Valores inválidos para Latitude e Longitude.')
+                        sg.popup_error('Valores inválidos para Latitude e Longitude.', title="Map Error", icon='arapuka.ico')
             else:            
                 sg.popup_error('Ainda Não possui dados da última localização.',title="Map Error", icon='arapuka.ico')
         try:
@@ -237,7 +237,7 @@ def estado_com_mapa(comando, estado, descricao):
                             pass
 
                     except ValueError:
-                        sg.popup_error('Valores inválidos para Latitude e Longitude.')
+                        sg.popup_error('Valores inválidos para Latitude e Longitude.', title="Map Error", icon='arapuka.ico')
             else:            
                 sg.popup_error('Ainda Não possui dados da última localização.',title="Map Error", icon='arapuka.ico')            
         try:

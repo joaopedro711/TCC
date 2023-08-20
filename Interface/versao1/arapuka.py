@@ -5,11 +5,13 @@ import time
 import sys
 import os
 
+
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 srcs_path = os.path.abspath(os.path.join(diretorio_atual,'.', 'srcs'))
 sys.path.insert(1,srcs_path)
 
 from srcs.eventos import *
+from srcs.requisicoes import *
 
 app_title = 'Arapuka'
 themes = sorted(list(sg.LOOK_AND_FEEL_TABLE.keys()))

@@ -152,9 +152,6 @@ def extrair_latitude_longitude(data):
     
 def exibir_mapa(latitude, longitude):
     try:
-        import folium
-        from selenium import webdriver
-
         m = folium.Map(location=[latitude, longitude], zoom_start=16)
         folium.Marker([latitude, longitude]).add_to(m)
 
