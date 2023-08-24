@@ -90,8 +90,8 @@ def is_valid_email(email):
 
 def email_layout():
     layout = [
-        [sg.Text('Digite seu e-mail:')],
-        [sg.InputText(key='email')],
+        [sg.Text('E-mail de destino:'), sg.InputText(key='email')],
+        [sg.Text('Assunto do E-mail:'), sg.InputText(key='assunto')],
         [sg.Button('Enviar')],
     ]
     window = sg.Window('Envio de E-mail', layout, finalize=True, icon='arapuka.ico')

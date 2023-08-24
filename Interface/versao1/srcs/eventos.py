@@ -87,7 +87,7 @@ def email():
             if auxiliares.is_valid_email(email):
                 window.close()
                 #chama a função que envia o POST com o email e mostra o resultado no console
-                estado_duo_sem_mapa(f"#MAIL# {email}", "E-mail", f"Pedido de envio de E-mail para o endereço {email} enviado!")      
+                estado_duo_sem_mapa(f"#MAIL# {email} {values['assunto']}", "E-mail", f"Pedido de envio de E-mail com assunto: {values['assunto']}, para o endereço {email} enviado!")      
                 
             else:
                 sg.popup_error('E-mail inválido. Por favor, digite novamente.', title="E-mail inválido", icon='arapuka.ico')
