@@ -64,6 +64,7 @@ void WhatsAppMessages(String message);
 
 //Funções Auxiliares
 void extractCoordenadas(const String &input, String &latitude_arapuka, String &longitude_arapuka);
+void checa_mudanca_estado(String input);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////     SETUP/LOOP   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ void setup() {
 }
 
 void loop() {
-  resposta = "";                                                /// Garantir que não tem resultado anterior
+  resposta = "", comando = "";                                                /// Garantir que não tem resultado anterior
   
   //Checar se está conectado na internet para fazer a requisição
   if(WiFi.status() == WL_CONNECTED) {   
@@ -99,38 +100,47 @@ void loop() {
       delete_post_comando();                  // Já apaga para evitar conflito
       splitMessage(comando, comando_result);
       // envia comando para o Arapuka
-      //enviar_comando(comando_result[0]);
-      Serial.println(comando_result[0]);
-      Serial.println(comando_result[1]);
-      Serial.println(comando_result[2]);
-      // aguarda mensagem do Arapuka
-      do{
-        //Serial.println("------------------------");                                           //debugando, saber se está aqui
-        resposta = receber_mensagem();        
-      }while(resposta.length() < 10);
-
-      // Se for o comando de emial posta o email
-      if(comando_result[0] == "#MAIL#"){
-        // Checa se tem internet para fazer o envio de email
-        if(WiFi.status() == WL_CONNECTED) { 
-          //envia email com smtp2go
-          //
-          //
-          //
-          post_resposta("E-mail enviado");
-        }
+      enviar_comando(comando_result[0]);
+      //Serial.println(comando_result[0]);                                        //debug
+      //Serial.println(comando_result[1]);                                        //debug
+      //Serial.println(comando_result[2]);                                        //debug
+      // aguarda mensagem do Arapuka se não for o comando de RTC
+      //se for o comando RTC
+      if(comando.indexOf("#RTC") != -1){
+        post_resposta("RTC ajustado");
       }
-      //Se não for o comando de Email posta toda a mensagem no servidor de resposta
+      // caso não seja o comando de RTC, aguarda resposta do Arapuka
       else{
-        // Checa se tem internet para fazer o Post da resposta
-        if(WiFi.status() == WL_CONNECTED) { 
-          remove_hashtag(resposta);
-          post_resposta(resposta);
-
-          //Checa se Chegou mudança de ESTADO
-          //
-          //
-          //Envia mensagem para o Whatsapp
+        do{
+          //Serial.println("------------------------");                                           //debugando, saber se está aqui
+          resposta = receber_mensagem();        
+        }while(resposta.length() < 10);
+        
+        // Se for o comando de emial posta o email
+        if(comando_result[0] == "#MAIL#"){
+          // Checa se tem internet para fazer o envio de email
+          if(WiFi.status() == WL_CONNECTED) { 
+            extractCoordenadas(resposta, latitude_arapuka, longitude_arapuka);
+            coordenadas = String(latitude_arapuka) + "," + String(longitude_arapuka);
+            //Serial.println(coordenadas);
+            remove_hashtag(resposta);
+            //Serial.println(resposta);
+            //envia email com smtp2go
+            e_mail(resposta, comando_result[1], comando_result[2], coordenadas);
+            post_resposta("E-mail enviado");
+          }
+        }
+        //Se não for o comando de Email posta toda a mensagem no servidor de resposta
+        else{
+          // Checa se tem internet para fazer o Post da resposta
+          if(WiFi.status() == WL_CONNECTED) { 
+            remove_hashtag(resposta);
+            post_resposta(resposta);
+  
+            //Checa se Chegou mudança de ESTADO
+            //Envia mensagem para o Whatsapp
+            checa_mudanca_estado(resposta);
+          }
         }
       }
     }
@@ -146,85 +156,8 @@ void loop() {
       remove_hashtag(resposta);
       post_resposta(resposta);
       //Checa se Chegou mudança de ESTADO
-      //
-      //
       //Envia mensagem para o Whatsapp
+      checa_mudanca_estado(resposta);
     }
   }
-
-  
-  // Verifica o estado do botão
-//  if (digitalRead(buttonPin) == LOW) {
-//    if (!buttonPressed) {
-//      if(e_mail("vamos lá meu chapa", "jo88791@gmail.com", "Teste subject puka")== true){
-//            post_resposta("E-mail enviado");
-//      }
-//      //Checa se tem algum comando
-//      comando = get_comando();
-//      //5 é o comando com menor caracter
-//      if(comando.length() > 4 && comando != "Nenhuma mensagem_comando foi postada ainda."){
-//        splitMessage(comando, comando_result);
-//        // envia comando para o Arapuka
-//        //enviar_comando(comando_result[0]);
-//        Serial.println(comando_result[0]);
-//        // aguarda mensagem do Arapuka por algum tempo
-//        //resposta = receber_mensagem(20);
-//        Serial.println(comando_result[1]);
-//        Serial.println(comando_result[2]);
-//      }
-//
-//        // Se for o comando de enviar e_mail, envia um post diferente dos demais
-//        if(comando_result[0]=="#MAIL#"){
-//          //envia email
-//          if(e_mail(resposta, comando_result[1])== true){
-//            post_resposta("E-mail enviado");
-//          }
-//          else{
-//            post_resposta("Falha no envio de email");
-//          }
-//        }
-//        // Faz o POST da resposta do Arapuka
-//        post_resposta(resposta);
-//
-//        
-//        // Deleta o comando da page_web
-//        delete_post_comando();
-//        Serial.println(comando_result[0]);
-//        Serial.println(comando_result[1]);
-//        Serial.println("--------------------");
-//      }
-
-
-//      if(e_mail("Olooco","jo88791@gmail.com")== true){
-//        Serial.println("E-mail enviado");
-//      }
-//      else{
-//        Serial.println("falha no envio de email");
-//      }
-//      buttonPressed = true;
-//    }
-//  } else {
-//    buttonPressed = false;
-//  }
-//  //Checa se tem algo do Arapuka
-//  resposta = receber_mensagem(1);
-//  if(resposta.length() > 10){
-//    post_resposta(resposta);
-//  }
-
-/*
-  resposta = receber_mensagem();
-  if(resposta.length() > 10){
-    Serial.println(resposta);
-    extractCoordenadas(resposta, latitude_arapuka, longitude_arapuka);
-    coordenadas = String(latitude_arapuka) + "," + String(longitude_arapuka);
-    Serial.println(coordenadas);
-    remove_hashtag(resposta);
-    Serial.println(resposta);
-    resposta = "";
-    delay(5000);
-  }
-  Serial.println("-----------------------------------------");
-  delay(2000);
-*/
 }
