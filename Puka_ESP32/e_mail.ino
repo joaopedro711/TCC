@@ -1,4 +1,4 @@
-bool e_mail(String mensagem, String e_mail_to){
+bool e_mail(String mensagem, String e_mail_to, String assunto, String coordenadas){
   // Configurações do servidor SMTP2GO
   char* server = "mail.smtp2go.com";
   int port = 465;
@@ -46,11 +46,11 @@ bool e_mail(String mensagem, String e_mail_to){
   client.println("DATA");
   waitForResponse(client);
 
-  client.println("Subject: Arapuka móvel");
+  client.println("Subject: " + String(assunto));
   client.println("From: <" + String(email_from) + ">");
   client.println("To: <" + String(email_to) + ">");
   client.println("Content-Type: text/plain");
-  client.println(mensagem);
+  client.println(String(mensagem) + "\n\r" + "https://www.google.com/maps?q="+ String(coordenadas));
   client.println(".");
   waitForResponse(client);
 
