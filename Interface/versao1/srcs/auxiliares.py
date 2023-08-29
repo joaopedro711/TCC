@@ -25,9 +25,9 @@ update_queue = queue.Queue()
 def console_duo(Estado):
     layout = [
         [sg.Text('Status do Post Request:')],
-        [sg.Output(size=(60, 3), key='OutputPost')],
+        [sg.Output(size=(70, 3), key='OutputPost')],
         [sg.Text('Respostas da Requisição GET:')],
-        [sg.Output(size=(60, 10), key='OutputGet')],
+        [sg.Output(size=(70, 10), key='OutputGet')],
         [sg.Button('Fechar')]
     ]
     
@@ -41,7 +41,7 @@ def console_duo_map(Estado):
         [sg.Text('Status do Post Request:')],
         [sg.Output(size=(41, 3), key='OutputPost'),sg.T('', size=(3, 1)), sg.Button('Mostrar Mapa', size=(10, 2), pad=(10, 10))],
         [sg.Text('Respostas da Requisição GET:')],
-        [sg.Output(size=(60, 10), key='OutputGet')],
+        [sg.Output(size=(70, 10), key='OutputGet')],
         [sg.Button('Fechar')]
     ]
     
@@ -54,7 +54,7 @@ def console_get(Estado):
     layout = [
         [sg.Button('Mostrar Mapa', size=(10, 2), pad=(10, 10))],
         [sg.Text('Respostas da Requisição GET:')],
-        [sg.Output(size=(60, 10), key='OutputGet')],
+        [sg.Output(size=(70, 10), key='OutputGet')],
         [sg.Button('Fechar')]
     ]
     
@@ -143,10 +143,18 @@ def is_valid_RD_n_m(number1, number2):
 def extrair_latitude_longitude(data):
     try:
         partes = data.split()
-        latitude_str, longitude_str = partes[2].split(','), partes[3].split(',')
-        latitude = float(latitude_str[0])
-        longitude = float(longitude_str[0])
-        return latitude, longitude   
+        # Significa que mudou de estado
+        if(partes[0] == "DMT" or partes[0] == "VIG" or partes[0] == "ALT1" or partes[0] == "ALT2" or partes[0] == "SPT"):
+            latitude_str, longitude_str = partes[4].split(','), partes[5].split(',')
+            latitude = float(latitude_str[0])
+            longitude = float(longitude_str[0])
+            return latitude, longitude
+        # Não mudou de estado
+        else:    
+            latitude_str, longitude_str = partes[2].split(','), partes[3].split(',')
+            latitude = float(latitude_str[0])
+            longitude = float(longitude_str[0])
+            return latitude, longitude   
     except:
         return False, False 
     
