@@ -7,6 +7,7 @@
 #include "Serial.h"
 #include "Modos.h"
 #include "Timer.h"
+#include "Rtc.h"
 
 void estados_config(){
     estado_i=0;
@@ -93,6 +94,10 @@ void resete(){
 }
 
 void dormente(){
+    estado_puka[0]= 'D',estado_puka[1]= 'M',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
+    gprs_complete_str(estado_puka);
+    gprs_complete_str("Arapuka em estado Dormente");
+
     while(TRUE){
         sel_estado();
 
@@ -106,72 +111,90 @@ void dormente(){
 }
 
 void vigilia(){
+    estado_puka[0]= 'V',estado_puka[1]= 'I',estado_puka[2]= 'G',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
+    gprs_complete_str(estado_puka);
+    gprs_complete_str("Arapuka em estado de Vigilia");
+
+    //definindo os valores do repouso do Arapuka
     repouso_values_mpu();
-
-    while(TRUE){
-        if(acel_furto()==FALSE){
-            gprs_str("OK\r\n");
-        }
-        else if(acel_furto()==TRUE){
-            gprs_str("FURTADO\r\n");
-        }
-        delay_10ms(100); //0,5 seg
-    }
-}
-
-void alerta_1(){
-    //gps_furto();
     set_values_gps();
-    ser1_char(' ');ser1_dec32u(menorlatitude);ser1_char(' '); ser1_dec32u(maiorlatitude); ser1_str(" ---- ");
-    delay_10ms(100); //0,5 seg
-    ser1_dec32u(menorlongitude); ser1_char(' ');ser1_dec32u(maiorlongitude); ser1_str("\n\r");
-    delay_10ms(100); //0,5 seg
-    while(1){
-        if(gps_furto() == FALSE){
-            gprs_complete_str("OK");
-            ser1_dec32u(lat);ser1_str("   "); ser1_dec32u(longt); ser1_str("\n\r");
+
+    while(TRUE){
+        sel_estado();
+
+        //se foi furtado entra em Alerta 1
+        if(acel_furto()==TRUE || giro_furto()==TRUE || gps_furto()==TRUE){
+            alerta_1();
         }
-        else if(gps_furto() == TRUE) gprs_complete_str("FURTADO");
-        delay_10ms(200); //1 seg
     }
 }
 
-void alerta_2(){
+// Envia posição a cada hora e grava na memoria
+void alerta_1(){
+    estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '1',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
+    gprs_complete_str(estado_puka);
+    gprs_complete_str("Arapuka em estado de Alerta 1");
+
     rtc_estado();
-    atualiza_data_hora(TRUE, TRUE);
+    atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
     while(TRUE){
+        sel_estado();
         rtc_estado();
-       // gprs_str(rtc_msg);
-        //gprs_str("\n\r");
-        if(passou_1_min()==TRUE){
 
-            ///envia posição do gps
 
-            atualiza_data_hora(TRUE, FALSE); //atualiza apenas o minuto
-            gprs_str(rtc_msg);
-            gprs_str("\n\r----- passou 1 min -------\n\r");
-
-            //pega dados do gps
-            gps_estado_modo();
-            //junta todos os dados necessarios em apenas uma string
-            todos_dados(FALSE);
-            gprs_str(toda_msg);
-        }
         if(passou_1_hora()==TRUE){
+            atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+            gps_estado_modo();
+            todos_dados(TRUE);
+            gprs_complete_str(toda_msg);
 
-            ////envia posição do gps e grava na memoria
-            atualiza_data_hora(FALSE, TRUE); //atualiza apenas a hora
-            gprs_str(rtc_msg);
-            gprs_str("\n\r----- passou 10 seg -------\n\r");
+            //SALVA NA MEMORIA
+            //
+            //
+        }
+    }
+}
+
+// Envia posição a cada min, a cada hora grava na memoria
+void alerta_2(){
+    estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '2',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
+    gprs_complete_str(estado_puka);
+    gprs_complete_str("Arapuka em estado de Alerta 2");
+
+    rtc_estado();
+    atualiza_data_hora(TRUE, TRUE);            //Só preciso atualizar a ultima hora
+    while(TRUE){
+        sel_estado();
+        rtc_estado();
+
+        if(passou_1_min()==TRUE){
+            atualiza_data_hora(TRUE, FALSE); //atualiza apenas o minuto
+
+            gps_estado_modo();
+            todos_dados(TRUE);
+            gprs_complete_str(toda_msg);
+        }
+
+        if(passou_1_hora()==TRUE){
+            atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+            gps_estado_modo();
+            todos_dados(TRUE);
+            gprs_complete_str(toda_msg);
+
+            //SALVA NA MEMORIA
+            //
+            //
         }
     }
 }
 
 void suspeito(){
+    estado_puka[0]= 'S',estado_puka[1]= 'P',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
     rtc_estado();
     gps_estado_modo();
     //argumento FALSE para receber apenas os valores do RTC + GPS
     todos_dados(TRUE);
+    gprs_complete_str(estado_puka);
     gprs_complete_str(toda_msg);
     delay_10ms(200);
 }
@@ -197,14 +220,14 @@ void rtc_configure(){
 
     //Data (dd/mm/aa)
     vetor[0]=16*(estado_comando[5]-0x30)+(estado_comando[6]-0x30);  //Dia
-    vetor[1]=16*(estado_comando[8]-0x30)+(estado_comando[9]-0x30);  //Mï¿½s
+    vetor[1]=16*(estado_comando[8]-0x30)+(estado_comando[9]-0x30);  //Mes
     vetor[2]=16*(estado_comando[11]-0x30)+(estado_comando[12]-0x30);  //Ano
     rtc_wr_vet(4,vetor,3);
 
     // Hora (hh:mm:ss)
-    vetor[2]=16*(estado_comando[20]-0x30)+(estado_comando[21]-0x30);  //Segundos
-    vetor[1]=16*(estado_comando[17]-0x30)+(estado_comando[18]-0x30);  //Minutos
     vetor[0]=16*(estado_comando[14]-0x30)+(estado_comando[15]-0x30);  //Horas
+    vetor[1]=16*(estado_comando[17]-0x30)+(estado_comando[18]-0x30);  //Minutos
+    vetor[2]=16*(estado_comando[20]-0x30)+(estado_comando[21]-0x30);  //Segundos
     rtc_wr_vet(0,vetor,3);
 }
 
@@ -226,7 +249,7 @@ void baixo_consumo(){
 }
 
 void code_erro(){
-    gprs_complete_str("ERROR");
+    gprs_complete_str("ERROR, comando invalido.");
 }
 
 // Envia RTC + GPS (conteúdo do email)
@@ -238,7 +261,13 @@ void email(){
     gprs_complete_str(toda_msg);
 }
 
-// retorna para o ESP32, dizendo que está online
+// retorna todos os dados para o ESP32
+//envia o estado atual, data/hora, localização e acel/gir
 void status(){
-    gprs_complete_str("ONLINE");
+    rtc_estado();
+    gps_estado_modo();
+    //argumento FALSE para receber apenas os valores do RTC + GPS
+    todos_dados(TRUE);
+    gprs_complete_str(estado_puka);                                 //Envia o estado atual
+    gprs_complete_str(toda_msg);
 }

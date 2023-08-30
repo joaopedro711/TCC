@@ -110,8 +110,8 @@ char passou_1_hora(){
             result = 0;
         }
 
-        //if passou 1 hora
-        if (result > 150){
+        //if passou 1 hora = 3600 segundos
+        if (result > 3600){
             return TRUE;
         }
         return FALSE;
@@ -133,8 +133,8 @@ char passou_1_hora(){
             result = 0;
         }
 
-        //if passou 1 hora
-        if (result > 150){
+        //if passou 1 hora = 3600 segundos
+        if (result > 3600){
             return TRUE;
         }
         return FALSE;

@@ -11,6 +11,7 @@ volatile char estado_comando[24];
 //salva todos os dados necessarios em uma string, sera string pronta para salvar na memoria
 void todos_dados(int mpu);
 volatile char toda_msg[70];
+char estado_puka[20];                  /// Estado atual do Arapuka
 
 //////////////////////////////////////////////// GLOBAIS PARA O RTC ///////////////////////////////////////////////////////
 volatile char rtc_vetor[7];

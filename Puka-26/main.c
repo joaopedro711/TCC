@@ -78,8 +78,8 @@ int main(void){
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
-        //dormente();
-        suspeito();
+        dormente();
+        //suspeito();
       //  gprs_complete_str("resetando");
        // resete();
        // gprs_complete_str("resetou");
