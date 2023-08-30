@@ -225,9 +225,9 @@ void rtc_configure(){
     rtc_wr_vet(4,vetor,3);
 
     // Hora (hh:mm:ss)
-    vetor[0]=16*(estado_comando[14]-0x30)+(estado_comando[15]-0x30);  //Horas
+    vetor[2]=16*(estado_comando[14]-0x30)+(estado_comando[15]-0x30);  //Horas
     vetor[1]=16*(estado_comando[17]-0x30)+(estado_comando[18]-0x30);  //Minutos
-    vetor[2]=16*(estado_comando[20]-0x30)+(estado_comando[21]-0x30);  //Segundos
+    vetor[0]=16*(estado_comando[20]-0x30)+(estado_comando[21]-0x30);  //Segundos
     rtc_wr_vet(0,vetor,3);
 }
 
