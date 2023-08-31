@@ -8,6 +8,7 @@
 #include "Modos.h"
 #include "Timer.h"
 #include "Rtc.h"
+#include "Wq.h"
 
 void estados_config(){
     estado_i=0;
@@ -63,14 +64,15 @@ void sel_estado(){
              rtc_configure();
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'D' && estado_comando[3] == ' ') { //Checa se é o comando de leitura das posições de memoria
+            ler_memoria();                                          // Funcao que decide se vai ler_n ou ler_n_m
             //Significa que eh o comando de ler n primeiras posições
-            if(estado_comando[5] == '#'){
-                ler_n();
-            }
-            //Significa que eh o comando de ler n m posições (#RD n m#)
-            else if (estado_comando[5] == ' ' &&  estado_comando[7] == '#'){
-                ler_n_m();
-            }
+//            if(estado_comando[5] == '#'){
+//                ler_n();
+//            }
+//            //Significa que eh o comando de ler n m posições (#RD n m#)
+//            else if (estado_comando[5] == ' ' &&  estado_comando[7] == '#'){
+//                ler_n_m();
+//            }
 //            else{
 //                code_erro();
 //            }
@@ -200,18 +202,62 @@ void suspeito(){
 }
 
 void apagar(){
-    gprs_str("apagar\r\n");
-    gprs_str("apagar\r\n");
+    wq_erase_chip();
+    gprs_complete_str("Toda Memoria apagada");
 }
 
-void ler_n(){
-    gprs_str("ler_100\r\n");
-    gprs_str("ler_100\r\n");
+//Decide qual função chamar, se chama a de ler_n ou ler_n_m
+void ler_memoria(){
+    unsigned int i,z,entrou=0;
+    int n=0, m=0,j=1;
+
+    //Ao percorrer os caracteres, checar quem encontra primeiro
+    for(i=4; i<24;i++){
+        //ler_n
+        if(estado_comando[i]=='#' && entrou == 0){
+            i--;
+            while(i>3){
+                n+= (estado_comando[i]-'0') * j;
+                i--;
+                j*=10;
+            }
+            ler_n(n);               //passa posição do fim do vetor
+            entrou=1;
+        }
+        //Ler_n_m
+        else if(estado_comando[i]==' ' && entrou == 0){
+            ///// n
+            z=i;    //onde esta o caractere de espaco
+            i--;
+            while(i>3){
+                n+= (estado_comando[i]-'0') * j;
+                i--;
+                j*=10;
+            }
+
+            ///// m
+            i=z,j=1;
+            while(estado_comando[i] != '#') i++;
+            i--;
+            while(i>z){
+                m+= (estado_comando[i]-'0') * j;
+                i--;
+                j*=10;
+            }
+            ler_n_m(n,m);
+            entrou=1;
+        }
+    }
 }
 
-void ler_n_m(){
-    gprs_str("ler_n_m\r\n");
-    gprs_str("ler_n_m\r\n");
+void ler_n(int n){
+    gprs_complete_str("n");
+   // gprs_str("ler_100\r\n");
+}
+
+void ler_n_m(int n,int m){
+    gprs_complete_str("n");
+    gprs_complete_str("m");
 }
 
 //Seta horario por gprs
