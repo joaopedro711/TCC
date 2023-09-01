@@ -11,8 +11,7 @@
 #include "Wq.h"
 
 void estados_config(){
-    estado_i=0;
-    estado_y=0;
+    estado_i=0, estado_y=0;
 }
 
 
@@ -96,7 +95,9 @@ void resete(){
 }
 
 void dormente(){
+    ler_memoria_estado();
     estado_puka[0]= 'D',estado_puka[1]= 'M',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
+    salvar_ultimo_estado_address_memoria();
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado Dormente");
 
@@ -116,7 +117,7 @@ void vigilia(){
     estado_puka[0]= 'V',estado_puka[1]= 'I',estado_puka[2]= 'G',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Vigilia");
-
+    salvar_ultimo_estado_address_memoria();
     //definindo os valores do repouso do Arapuka
     repouso_values_mpu();
     set_values_gps();
@@ -136,6 +137,7 @@ void alerta_1(){
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '1',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Alerta 1");
+    salvar_ultimo_estado_address_memoria();
 
     rtc_estado();
     atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
@@ -162,6 +164,7 @@ void alerta_2(){
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '2',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Alerta 2");
+    salvar_ultimo_estado_address_memoria();
 
     rtc_estado();
     atualiza_data_hora(TRUE, TRUE);            //Só preciso atualizar a ultima hora
@@ -191,14 +194,55 @@ void alerta_2(){
 }
 
 void suspeito(){
-    estado_puka[0]= 'S',estado_puka[1]= 'P',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
-    rtc_estado();
-    gps_estado_modo();
-    //argumento FALSE para receber apenas os valores do RTC + GPS
-    todos_dados(TRUE);
-    gprs_complete_str(estado_puka);
-    gprs_complete_str(toda_msg);
-    delay_10ms(200);
+   estado_puka[0]= 'S',estado_puka[1]= 'P',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
+////    rtc_estado();
+////    gps_estado_modo();
+////    //argumento FALSE para receber apenas os valores do RTC + GPS
+////    todos_dados(TRUE);
+   gprs_complete_str(estado_puka);
+   salvar_ultimo_estado_address_memoria();
+   gprs_complete_str(estado_puka);
+////    gprs_complete_str(toda_msg);
+////    delay_10ms(200);
+//    int i;
+//    long wr_adr=0, rd_adr = 0;
+//    char vetor[7];
+//    char vt[16];
+//    char msg[48];
+//    msg[0]= estado_puka[0], msg[1]= estado_puka[1], msg[2]= estado_puka[2], msg[3]= estado_puka[3], msg[4]= ' ';
+//    msg[5]= '1', msg[6]= '0', msg[7]= '2', msg[8]= '4', msg[9]= '0', msg[10]= '0', msg[11]= '0';
+//
+////    msg[0]= estado_puka[0], msg[1]= estado_puka[1], msg[2]= estado_puka[2], msg[3]= estado_puka[3], msg[4]= ' ';
+////    msg[5]= 'FF', msg[6]= 'FF', msg[7]= 'FF', msg[8]= 'FF', msg[9]= 'FF', msg[10]= 'FF', msg[11]= 'FF';
+//
+//    for(i=12; i<48; i++){
+//        msg[i]= ' ';
+//    }
+//    //Antes de escrever precisa apagar a memoria
+//    wq_erase_4k(0);
+//    //salvar nas 48 primeiras posições
+//    for(i = 0; i<48; i++){
+//        save_data(msg[i], wr_adr + i);
+//    }
+//    //Ler da memoria
+//    //chama a funçao de ler memoria
+//    // ler apenas os primeiros 16 registros
+//    for (i=0; i<i; i++){
+//       wq_rd_blk(rd_adr, vt,128);
+//       ser1_hex32(rd_adr);
+//       ser1_char(':');
+//       ser1_spc(1);
+//       ser1_linha(vt);
+//       //rd_adr+=16;
+//    }
+//   int y=0;
+//  // estado_puka[0]= 'D',estado_puka[1]= 'M',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
+//
+//    ler_memoria_estado();
+//    gprs_complete_str(mem_vetor);
+//    salvar_ultimo_estado_address_memoria();
+//    ler_memoria_estado();
+//    gprs_complete_str(mem_vetor);
 }
 
 void apagar(){
@@ -260,7 +304,7 @@ void ler_n_m(int n,int m){
     gprs_complete_str("m");
 }
 
-//Seta horario por gprs
+//recebe horario por gprs e salva no RELOGIO
 void rtc_configure(){
     char vetor[3];
 

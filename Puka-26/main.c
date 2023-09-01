@@ -56,6 +56,7 @@ int main(void){
     if (lcd_presente()==TRUE){  //Verificar o LCD
         ser1_str("\nLCD=");
         ser1_hex8(lcd_adr);
+        ser1_str("\n\r");
         lcd_inic();
         lcd_dma_config();
         //ser1_str("  tem_lcd=");   ser1_dec8unz(lcd_tem);
@@ -78,7 +79,8 @@ int main(void){
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
-        dormente();
+       dormente();
+        //modo_configrtc(18);
         //suspeito();
       //  gprs_complete_str("resetando");
        // resete();
