@@ -11,7 +11,7 @@ update_queue = queue.Queue()
 update_thread = None
 
 def log():
-    estado_com_mapa("","Log", "") #tem apenas o argumento de Estado
+    estado_com_mapa("","Console", "") #tem apenas o argumento de Estado
 
 # Funções para cada botão dos Estados
 def dormente():

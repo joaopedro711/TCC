@@ -39,7 +39,7 @@ def console_duo(Estado):
 def console_duo_map(Estado):
     layout = [
         [sg.Text('Status do Post Request:')],
-        [sg.Output(size=(41, 3), key='OutputPost'),sg.T('', size=(3, 1)), sg.Button('Mostrar Mapa', size=(10, 2), pad=(10, 10))],
+        [sg.Output(size=(50, 3), key='OutputPost'),sg.T('', size=(4, 1)), sg.Button('Mostrar Mapa', size=(10, 2), pad=(10, 10))],
         [sg.Text('Respostas da Requisição GET:')],
         [sg.Output(size=(70, 10), key='OutputGet')],
         [sg.Button('Fechar')]
@@ -104,7 +104,7 @@ def email_layout():
 
 # Ler n primeiros Registros
 def rd_n():
-    choices = list(range(1, 101))
+    choices = list(range(1, 801))
     layout = [
         [sg.Text('Escolha a quantidade de Registros:')],
         [sg.Combo(choices, default_value=1, size=(10, 1), key='combo')],
@@ -117,7 +117,7 @@ def rd_n():
 
 # Ler n ate m Registros
 def rd_n_m():
-    choices = list(range(1, 101))
+    choices = list(range(1, 801))
     layout = [
         [sg.Text('Escolha o intervalo de Registros:')],
         [sg.Combo(choices, default_value=1, size=(10, 1), key='combo1'), sg.Combo(choices, default_value=1, size=(10, 1), key='combo2')],

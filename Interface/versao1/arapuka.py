@@ -43,7 +43,7 @@ def create_window():
     layout = [[sg.T('', size=(17, 1)), sg.Text('Arapuka', font='Any 50')],
 
                 [sg.Text('\n\n')],
-                [sg.Button('Log', size=(10, 2), pad=(10, 10))],
+                [sg.Button('Console', size=(10, 2), pad=(10, 10))],
                 [sg.Text('Estados:')],
                 # botões dos estados
                 [sg.Button('Dormente', size=(10, 2), pad=(10, 10)), sg.Button('Vigilia', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 2), pad=(10, 10)), sg.Button('Suspeito', size=(10, 2), pad=(10, 10))], 
@@ -70,7 +70,7 @@ while True:
     if event == sg.WINDOW_CLOSED:   
         break
 
-    elif event == 'Log':
+    elif event == 'Console':
         window.hide()
         log()
         window.un_hide()
