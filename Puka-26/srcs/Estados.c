@@ -16,13 +16,13 @@ void estados_config(){
 }
 
 
-//Analisar comando recebido do ESP32, vou fazer um vetor receber cada caractere, então analisar qual a mensagem recebida
+//Analisar comando recebido do ESP32, vou fazer um vetor receber cada caractere, entÃ£o analisar qual a mensagem recebida
 void sel_estado(){
     char x;
 
 //    if (gprs_tira(&x)==TRUE){
 //        if (x == '\n'){
-//            estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois já recebi o comando
+//            estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois jÃ¡ recebi o comando
 //        }
 //        else if(x >= ' ' && x <= 'z'){              //garantir de receber apenas o que realmente quero, estava vindo caracteres loucos
 //            estado_comando[estado_i++] = x;         //armazena os caracteres dentro de estado_comando
@@ -30,7 +30,7 @@ void sel_estado(){
 //    }
     while (gprs_tira(&x)==TRUE){
          if (x == '\n'){
-             estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois já recebi o comando
+             estado_y=1, estado_i=0;                 // estado_y==1 --> Posso selecionar o estado, pois jÃ¡ recebi o comando
          }
          else if(x >= ' ' && x <= 'z'){              //garantir de receber apenas o que realmente quero, estava vindo caracteres loucos
              estado_comando[estado_i++] = x;         //armazena os caracteres dentro de estado_comando
@@ -63,13 +63,13 @@ void sel_estado(){
         else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'T' && estado_comando[3] == 'C'){
              rtc_configure();
         }
-        else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'D' && estado_comando[3] == ' ') { //Checa se é o comando de leitura das posições de memoria
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'D' && estado_comando[3] == ' ') { //Checa se Ã© o comando de leitura das posiÃ§Ãµes de memoria
             ler_memoria();                                          // Funcao que decide se vai ler_n ou ler_n_m
-            //Significa que eh o comando de ler n primeiras posições
+            //Significa que eh o comando de ler n primeiras posiÃ§Ãµes
 //            if(estado_comando[5] == '#'){
 //                ler_n();
 //            }
-//            //Significa que eh o comando de ler n m posições (#RD n m#)
+//            //Significa que eh o comando de ler n m posiÃ§Ãµes (#RD n m#)
 //            else if (estado_comando[5] == ' ' &&  estado_comando[7] == '#'){
 //                ler_n_m();
 //            }
@@ -92,7 +92,7 @@ void sel_estado(){
 
 // Realiza o resete do MSP por software
 void resete(){
-    PMMCTL0 = PMMPW | PMMSWPOR; // Configuração para realizar um software reset
+    PMMCTL0 = PMMPW | PMMSWPOR; // ConfiguraÃ§Ã£o para realizar um software reset
 }
 
 void dormente(){
@@ -120,12 +120,12 @@ void vigilia(){
 
         //se foi furtado entra em Alerta 1
         if(acel_furto()==TRUE || giro_furto()==TRUE || gps_furto()==TRUE){
-            alerta_1();
+            suspeito();
         }
     }
 }
 
-// Envia posição a cada hora e grava na memoria
+// Envia posiÃ§Ã£o a cada hora e grava na memoria
 void alerta_1(){
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '1',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
@@ -137,7 +137,7 @@ void alerta_1(){
     gprs_complete_str(toda_msg);
 
     rtc_estado();
-    atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+    atualiza_data_hora(FALSE, TRUE);            //SÃ³ preciso atualizar a ultima hora
 
     while(TRUE){
         sel_estado();
@@ -145,7 +145,7 @@ void alerta_1(){
 
 
         if(passou_1_hora()==TRUE){
-            atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+            atualiza_data_hora(FALSE, TRUE);            //SÃ³ preciso atualizar a ultima hora
             gps_estado_modo();
             todos_dados(TRUE);
             gprs_complete_str(toda_msg);
@@ -156,7 +156,7 @@ void alerta_1(){
     }
 }
 
-// Envia posição a cada min, a cada hora grava na memoria
+// Envia posiÃ§Ã£o a cada min, a cada hora grava na memoria
 void alerta_2(){
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '2',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
@@ -168,7 +168,7 @@ void alerta_2(){
     gprs_complete_str(toda_msg);
 
     rtc_estado();
-    atualiza_data_hora(TRUE, TRUE);            //Só preciso atualizar a ultima hora
+    atualiza_data_hora(TRUE, TRUE);            //SÃ³ preciso atualizar a ultima hora
     while(TRUE){
         sel_estado();
         rtc_estado();
@@ -182,7 +182,7 @@ void alerta_2(){
         }
 
         if(passou_1_hora()==TRUE){
-            atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+            atualiza_data_hora(FALSE, TRUE);            //SÃ³ preciso atualizar a ultima hora
             gps_estado_modo();
             todos_dados(TRUE);
             gprs_complete_str(toda_msg);
@@ -204,7 +204,7 @@ void suspeito(){
     gprs_complete_str(toda_msg);
 
     rtc_estado();
-    atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+    atualiza_data_hora(FALSE, TRUE);            //SÃ³ preciso atualizar a ultima hora
 
     int i=0;
     while(TRUE){
@@ -215,7 +215,7 @@ void suspeito(){
         if(passou_1_hora()==TRUE){
             i++;
             if(i==3){
-                atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+                atualiza_data_hora(FALSE, TRUE);            //SÃ³ preciso atualizar a ultima hora
                 gps_estado_modo();
                 todos_dados(TRUE);
                 gprs_complete_str(toda_msg);
@@ -234,7 +234,7 @@ void apagar(){
     gprs_complete_str("Toda Memoria apagada");
 }
 
-//Decide qual função chamar, se chama a de ler_n ou ler_n_m
+//Decide qual funÃ§Ã£o chamar, se chama a de ler_n ou ler_n_m
 void ler_memoria(){
     unsigned int i,z,entrou=0;
     int j=1;
@@ -252,7 +252,7 @@ void ler_memoria(){
                 j*=10;
             }
             entrou=1;
-            ler_n();               //passa posição do fim do vetor
+            ler_n();               //passa posiÃ§Ã£o do fim do vetor
         }
         //Ler_n_m
         else if(estado_comando[i]==' ' && entrou == 0){
@@ -289,7 +289,7 @@ void ler_n(){
 
     //ler memoria 128 em 128 registros e mostrar no gprs
     for(i=0; i<n_rd; i++){
-        wq_rd_blk(address, vt, 100);                 //ler as 128 primeiras posições da memoria
+        wq_rd_blk(address, vt, 100);                 //ler as 128 primeiras posiÃ§Ãµes da memoria
         gprs_complete_str(vt);
         address+=128;   //pula para os proximo 128 registros
     }
@@ -308,7 +308,7 @@ void ler_n_m(int n,int m){
 
     //ler memoria 128 em 128 registros e mostrar no gprs
     for(i=0; i<cont; i++){
-        wq_rd_blk(address, vt, 100);                 //ler as 100 primeiras posições da memoria, so precisa ler isso
+        wq_rd_blk(address, vt, 100);                 //ler as 100 primeiras posiÃ§Ãµes da memoria, so precisa ler isso
         gprs_complete_str(vt);
         address+=128;   //pula para os proximo 128 registros
     }
@@ -337,13 +337,13 @@ void baixo_consumo(){
     //coloca em baixo consumo
     // Entrada do LPM0
 
-   __bis_SR_register(LPM0_bits | GIE); // Entra em LPM0 com interrupções habilitadas
+   __bis_SR_register(LPM0_bits | GIE); // Entra em LPM0 com interrupÃ§Ãµes habilitadas
 
 
     //retira do baixo consumo
-    // Saída do LPM0
+    // SaÃ­da do LPM0
 
-        //não pode estar aqui, precisa estar dentro da interrção desejada
+        //nÃ£o pode estar aqui, precisa estar dentro da interrÃ§Ã£o desejada
 //        __bic_SR_register_on_exit(LPM0_bits); // Remove o bit de LPM0 do registrador de status e sai do LPM0
 
 }
@@ -352,7 +352,7 @@ void code_erro(){
     gprs_complete_str("ERROR, comando invalido.");
 }
 
-// Envia RTC + GPS (conteúdo do email)
+// Envia RTC + GPS (conteÃºdo do email)
 void email(){
     rtc_estado();
     gps_estado_modo();
@@ -362,7 +362,7 @@ void email(){
 }
 
 // retorna todos os dados para o ESP32
-//envia o estado atual, data/hora, localização e acel/gir
+//envia o estado atual, data/hora, localizaÃ§Ã£o e acel/gir
 void status(){
     rtc_estado();
     gps_estado_modo();
