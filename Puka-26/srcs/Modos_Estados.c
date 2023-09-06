@@ -521,102 +521,75 @@ void mpu_8bits(){
 //////////////////////////////////////////////////////// MEmoria //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//ler memoria e decide para qual estado vai
-//pega o ultimo endereço referente a escrita
-void ler_memoria_estado(){
-    unsigned int i=5,z=0, y=0;
-    long j=1;
-    wr_address_mem=0;
+//Salva na memoria, chamada por Suspeito, alerta 1 e 2
+//Salva o estado atual e todos os outros dados
+void salvar_memoria(){
+   unsigned int i=0, j=0;
+    char vetor[100];
+    long wr;
 
-    wq_rd_blk(0, mem_vetor, 128);                 //ler as 128 primeiras posições da memoria
+    rtc_estado();
+    gps_estado_modo();
+    todos_dados(TRUE);
 
-    //apagar o mem_vt para evitar problemas futuros
-    for(y=0; y<10; y++) mem_vt[y]=' ';
-
-    //pegar o ultimo endereço primeiro
-    while(mem_vetor[i] >= '0' && mem_vetor[i] <= '9' ){
-        mem_vt[z] = mem_vetor[i];
-        i++,z++;
+    //coloca o estado atual no vetor que sera salvo na memoria
+    while(estado_puka[i] != '\0'){
+        vetor[i] = estado_puka[i];
+        i++;
     }
 
-    i--;
-    while(i>4){
-        wr_address_mem += (mem_vetor[i]-'0') * j;
-        j*=10;
-        i--;
-    }
-
-    //Checar qual o ultimo estado
-    if(mem_vetor[0]=='S' && mem_vetor[1]=='P' && mem_vetor[2]=='T'){
-        suspeito();
-    }
-    else if(mem_vetor[0]=='V' && mem_vetor[1]=='I' && mem_vetor[2]=='G'){
-        vigilia();
-    }
-    else if(mem_vetor[0]=='A' && mem_vetor[1]=='L' && mem_vetor[2]=='T' && mem_vetor[3]=='1'){
-        alerta_1();
-    }
-    else if(mem_vetor[0]=='A' && mem_vetor[1]=='L' && mem_vetor[2]=='T' && mem_vetor[3]=='1'){
-        alerta_2();
-    }
-    //Caso contrario, permanece no estado DORMENTE, pois eh o que automaticamente eh chamado no MAIN LOOP
-    else{
-        wr_address_mem = 128;           //Onde comecara os registros
-    }
-}
-
-// Salva o estado atual e ultimo endereco na memoria
-// Eh chamado toda vez que mudar de estado e quando salvar dados na memoria, alerta 1 e 2
-void salvar_ultimo_estado_address_memoria(){
-    int i=5, j=0, y=0, k=0;
-    char vt_aux[10];
-
-    //apaga os primeiros 128 registros antes de salvar
-    wq_erase_4k(0);                                             //precisa mudar isso, está apagando mais que poderia
-
-    // preparando os dados
-    mem_vetor[0]= estado_puka[0], mem_vetor[1]= estado_puka[1], mem_vetor[2]= estado_puka[2], mem_vetor[3]= estado_puka[3], mem_vetor[4]= ' ';
-
-
-    //apagar o mem_vt para evitar problemas futuros
-    for(y=0; y<10; y++) mem_vt[y]=' '; y=0;
-    for(y=0; y<10; y++) vt_aux[y]=' '; y=0;
-    // Tranformando o wr_address_mem em um vetor de char
-    do {
-        vt_aux[y++] = wr_address_mem % 10 + '0'; // Converte o dígito para o caractere ASCII
-        wr_address_mem /= 10;
-    } while (wr_address_mem > 0);
-    y=0;
-    while(vt_aux[y] >= '0' && vt_aux[y] <= '9') y++;
-    y--;
-    while(y>=0){
-        mem_vt[k] =vt_aux[y];
-        y--, k++;
-    }
-
-    //Mensagem final sendo preparada
-    while(mem_vt[j] >= '0' && mem_vt[j] <= '9'){
-        mem_vetor[i] = mem_vt[j];
+    while(toda_msg[j] != '\0'){
+        vetor[i] = toda_msg[j];
         i++, j++;
     }
+    vetor[i] = '\n', i++, vetor[i] = '\r', i++, vetor[i] = '\0';
 
-   //    msg[0]= estado_puka[0], msg[1]= estado_puka[1], msg[2]= estado_puka[2], msg[3]= estado_puka[3], msg[4]= ' ';
-   //    msg[5]= 'FF', msg[6]= 'FF', msg[7]= 'FF', msg[8]= 'FF', msg[9]= 'FF', msg[10]= 'FF', msg[11]= 'FF';
 
-    while(i<128){
-       mem_vetor[i]=' ';
-       i++;
+    i=0, wr = wr_address_mem;
+    while(vetor[i] != '\0'){
+        save_data(vetor[i], wr + i);
+        i++;
     }
-
-    //salvar o estado e ultimo endereço
-    for(i = 0; i<128; i++){
-        save_data(mem_vetor[i],i);
-    }
+    save_data(vetor[i], wr + i);  //salvar o caractere de '\0'
+    wr_address_mem+=128;
 }
 
+//Ler qual o ultimo estado salvo e pega o wr_address_mem da ultima escrita
+void check_estado_address(){
+    unsigned int i;
+    long address=0;
+    char vetor[5]; //tamanho necessario
 
+    //che
+    while(TRUE){
+        wq_rd_blk(address, vetor, 5);                     //ler apenas as primeiras posições
+        if(vetor[0] < ' ' || vetor[0] > 'z' ) break;    //significa que não tem mais registro
+        address += 128;
+    }
 
+    wr_address_mem = address;
 
+    //se tiver apenas o primeiro registro, vai dá ruim. Esse IF evita da erro
+    if(address >= 128) address -= 128;
+
+    wq_rd_blk(address, vetor, 5);
+    //checa qual o ultimo estado para poder voltar
+    if(vetor[0]=='S' && vetor[1]=='P' && vetor[2]=='T'){
+        suspeito();
+    }
+    else if(vetor[0]=='V' && vetor[1]=='I' && vetor[2]=='G'){
+        vigilia();
+    }
+    else if(vetor[0]=='A' && vetor[1]=='L' && vetor[2]=='T' && vetor[3]=='1'){
+        alerta_1();
+    }
+    else if(vetor[0]=='A' && vetor[1]=='L' && vetor[2]=='T' && vetor[3]=='1'){
+        alerta_2();
+    }
+    else{
+        dormente();
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////// ENVOLVE TODAS AS FUNÇÕES ////////////////////////////////////////////////////////////////////

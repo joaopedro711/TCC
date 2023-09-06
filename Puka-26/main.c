@@ -79,9 +79,13 @@ int main(void){
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
-       dormente();
+        //vai checar toda vez que der resete, só checa 1 vez
+       check_estado_address();
         //modo_configrtc(18);
-        //suspeito();
+//        n_rd=12;
+//        ler_n();
+//        n_rd = 3, m_rd=8;
+//        ler_n_m();
       //  gprs_complete_str("resetando");
        // resete();
        // gprs_complete_str("resetou");

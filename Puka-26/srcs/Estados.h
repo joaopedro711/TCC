@@ -11,7 +11,7 @@ volatile char estado_comando[24];
 //salva todos os dados necessarios em uma string, sera string pronta para salvar na memoria
 void todos_dados(int mpu);
 volatile char toda_msg[70];
-char estado_puka[20];                  /// Estado atual do Arapuka
+char estado_puka[10];                  /// Estado atual do Arapuka
 
 //////////////////////////////////////////////// GLOBAIS PARA O RTC ///////////////////////////////////////////////////////
 volatile char rtc_vetor[7];
@@ -26,8 +26,9 @@ volatile char rtc_ultima_data_hora_1_hora[18];
 
 ////////////////////////////////////////////////// GLOBAIS PARA A MEMORIA /////////////////////////////////////////////////
 long wr_address_mem;
-char mem_vetor[128];
+char mem_vetor[20];
 char mem_vt[10];
+volatile int n_rd,m_rd;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////// GLOBAIS PARA O GPS /////////////////////////////////////////////////////
@@ -55,8 +56,8 @@ void alerta_2();
 void suspeito();
 void apagar();
 void ler_memoria();
-void ler_n(int n);
-void ler_n_m(int n, int m);
+void ler_n();
+void ler_n_m();
 void rtc_configure();
 void baixo_consumo();
 void code_erro();
@@ -94,7 +95,9 @@ void mpu_8bits();
 
 ////////////////////// MEMORIA
 void ler_memoria_estado();
-void salvar_ultimo_estado_address_memoria();
+void salvar_memoria();
+void check_estado_address();
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////// Outras funções e variaveis/////////////////////////////////////////////////////////

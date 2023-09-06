@@ -12,6 +12,7 @@
 
 void estados_config(){
     estado_i=0, estado_y=0;
+    wr_address_mem = 0;
 }
 
 
@@ -95,21 +96,12 @@ void resete(){
 }
 
 void dormente(){
-    ler_memoria_estado();
     estado_puka[0]= 'D',estado_puka[1]= 'M',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
-    salvar_ultimo_estado_address_memoria();
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado Dormente");
 
     while(TRUE){
         sel_estado();
-
-//        rtc_estado();
-//        gps_estado_modo();
-//        todos_dados(FALSE);
-//        gprs_complete_str(toda_msg);
-//        gprs_complete_str("\n\r---------------\n\r");
-//        delay_10ms(200); //1 seg
     }
 }
 
@@ -117,7 +109,8 @@ void vigilia(){
     estado_puka[0]= 'V',estado_puka[1]= 'I',estado_puka[2]= 'G',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Vigilia");
-    salvar_ultimo_estado_address_memoria();
+    salvar_memoria();
+
     //definindo os valores do repouso do Arapuka
     repouso_values_mpu();
     set_values_gps();
@@ -137,10 +130,15 @@ void alerta_1(){
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '1',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Alerta 1");
-    salvar_ultimo_estado_address_memoria();
+    salvar_memoria();
+
+    gps_estado_modo();
+    todos_dados(TRUE);
+    gprs_complete_str(toda_msg);
 
     rtc_estado();
     atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+
     while(TRUE){
         sel_estado();
         rtc_estado();
@@ -153,8 +151,7 @@ void alerta_1(){
             gprs_complete_str(toda_msg);
 
             //SALVA NA MEMORIA
-            //
-            //
+            salvar_memoria();
         }
     }
 }
@@ -164,7 +161,11 @@ void alerta_2(){
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '2',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Alerta 2");
-    salvar_ultimo_estado_address_memoria();
+    salvar_memoria();
+
+    gps_estado_modo();
+    todos_dados(TRUE);
+    gprs_complete_str(toda_msg);
 
     rtc_estado();
     atualiza_data_hora(TRUE, TRUE);            //Só preciso atualizar a ultima hora
@@ -187,62 +188,45 @@ void alerta_2(){
             gprs_complete_str(toda_msg);
 
             //SALVA NA MEMORIA
-            //
-            //
+            salvar_memoria();
         }
     }
 }
 
 void suspeito(){
-   estado_puka[0]= 'S',estado_puka[1]= 'P',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
-////    rtc_estado();
-////    gps_estado_modo();
-////    //argumento FALSE para receber apenas os valores do RTC + GPS
-////    todos_dados(TRUE);
-   gprs_complete_str(estado_puka);
-   salvar_ultimo_estado_address_memoria();
-   gprs_complete_str(estado_puka);
-////    gprs_complete_str(toda_msg);
-////    delay_10ms(200);
-//    int i;
-//    long wr_adr=0, rd_adr = 0;
-//    char vetor[7];
-//    char vt[16];
-//    char msg[48];
-//    msg[0]= estado_puka[0], msg[1]= estado_puka[1], msg[2]= estado_puka[2], msg[3]= estado_puka[3], msg[4]= ' ';
-//    msg[5]= '1', msg[6]= '0', msg[7]= '2', msg[8]= '4', msg[9]= '0', msg[10]= '0', msg[11]= '0';
-//
-////    msg[0]= estado_puka[0], msg[1]= estado_puka[1], msg[2]= estado_puka[2], msg[3]= estado_puka[3], msg[4]= ' ';
-////    msg[5]= 'FF', msg[6]= 'FF', msg[7]= 'FF', msg[8]= 'FF', msg[9]= 'FF', msg[10]= 'FF', msg[11]= 'FF';
-//
-//    for(i=12; i<48; i++){
-//        msg[i]= ' ';
-//    }
-//    //Antes de escrever precisa apagar a memoria
-//    wq_erase_4k(0);
-//    //salvar nas 48 primeiras posições
-//    for(i = 0; i<48; i++){
-//        save_data(msg[i], wr_adr + i);
-//    }
-//    //Ler da memoria
-//    //chama a funçao de ler memoria
-//    // ler apenas os primeiros 16 registros
-//    for (i=0; i<i; i++){
-//       wq_rd_blk(rd_adr, vt,128);
-//       ser1_hex32(rd_adr);
-//       ser1_char(':');
-//       ser1_spc(1);
-//       ser1_linha(vt);
-//       //rd_adr+=16;
-//    }
-//   int y=0;
-//  // estado_puka[0]= 'D',estado_puka[1]= 'M',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
-//
-//    ler_memoria_estado();
-//    gprs_complete_str(mem_vetor);
-//    salvar_ultimo_estado_address_memoria();
-//    ler_memoria_estado();
-//    gprs_complete_str(mem_vetor);
+    estado_puka[0]= 'S',estado_puka[1]= 'P',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
+    gprs_complete_str(estado_puka);
+    gprs_complete_str("Arapuka em estado Suspeito");
+    salvar_memoria();
+
+    gps_estado_modo();
+    todos_dados(TRUE);
+    gprs_complete_str(toda_msg);
+
+    rtc_estado();
+    atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+
+    int i=0;
+    while(TRUE){
+        sel_estado();
+        rtc_estado();
+
+        //envia mensagem a cada 3h
+        if(passou_1_hora()==TRUE){
+            i++;
+            if(i==3){
+                atualiza_data_hora(FALSE, TRUE);            //Só preciso atualizar a ultima hora
+                gps_estado_modo();
+                todos_dados(TRUE);
+                gprs_complete_str(toda_msg);
+
+                //SALVA NA MEMORIA
+                salvar_memoria();
+                i=0;
+            }
+        }
+    }
+
 }
 
 void apagar(){
@@ -253,7 +237,9 @@ void apagar(){
 //Decide qual função chamar, se chama a de ler_n ou ler_n_m
 void ler_memoria(){
     unsigned int i,z,entrou=0;
-    int n=0, m=0,j=1;
+    int j=1;
+
+    n_rd=0, m_rd=0;
 
     //Ao percorrer os caracteres, checar quem encontra primeiro
     for(i=4; i<24;i++){
@@ -261,12 +247,12 @@ void ler_memoria(){
         if(estado_comando[i]=='#' && entrou == 0){
             i--;
             while(i>3){
-                n+= (estado_comando[i]-'0') * j;
+                n_rd+= (estado_comando[i]-'0') * j;
                 i--;
                 j*=10;
             }
-            ler_n(n);               //passa posição do fim do vetor
             entrou=1;
+            ler_n();               //passa posição do fim do vetor
         }
         //Ler_n_m
         else if(estado_comando[i]==' ' && entrou == 0){
@@ -274,7 +260,7 @@ void ler_memoria(){
             z=i;    //onde esta o caractere de espaco
             i--;
             while(i>3){
-                n+= (estado_comando[i]-'0') * j;
+                n_rd+= (estado_comando[i]-'0') * j;
                 i--;
                 j*=10;
             }
@@ -284,24 +270,48 @@ void ler_memoria(){
             while(estado_comando[i] != '#') i++;
             i--;
             while(i>z){
-                m+= (estado_comando[i]-'0') * j;
+                m_rd+= (estado_comando[i]-'0') * j;
                 i--;
                 j*=10;
             }
-            ler_n_m(n,m);
             entrou=1;
+            ler_n_m();
         }
     }
 }
 
-void ler_n(int n){
-    gprs_complete_str("n");
-   // gprs_str("ler_100\r\n");
+void ler_n(){
+    unsigned int i;
+    char vt[100];
+
+    long address=0;
+
+
+    //ler memoria 128 em 128 registros e mostrar no gprs
+    for(i=0; i<n_rd; i++){
+        wq_rd_blk(address, vt, 100);                 //ler as 128 primeiras posições da memoria
+        gprs_complete_str(vt);
+        address+=128;   //pula para os proximo 128 registros
+    }
 }
 
 void ler_n_m(int n,int m){
-    gprs_complete_str("n");
-    gprs_complete_str("m");
+    unsigned int i;
+    int cont;
+    char vt[100];
+
+    long address=0, wr=0;
+
+
+    cont = (m_rd - n_rd) + 1;     // pega ate o registro igual a m, ou seja, pega o registro m tambem
+    address = (n_rd * 128) - 128; //pega do registro n
+
+    //ler memoria 128 em 128 registros e mostrar no gprs
+    for(i=0; i<cont; i++){
+        wq_rd_blk(address, vt, 100);                 //ler as 100 primeiras posições da memoria, so precisa ler isso
+        gprs_complete_str(vt);
+        address+=128;   //pula para os proximo 128 registros
+    }
 }
 
 //recebe horario por gprs e salva no RELOGIO
