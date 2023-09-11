@@ -50,6 +50,7 @@ void delete_post_comando(){
 
 // Envia a resposta do Arapuka para o servidor
 void post_resposta(String mensagem){
+  Serial.println("Inicio do Post resposta = \n\r"+ String(mensagem));
   int i = 0;
   // Cria o objeto HTTPClient
   HTTPClient http;
@@ -67,4 +68,5 @@ void post_resposta(String mensagem){
   }
   // Libera os recursos do objeto HTTPClient
   http.end();
+  Serial.println("Fim do Post resposta");
 }

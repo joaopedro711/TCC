@@ -47,7 +47,7 @@ void enviar_comando(const String &str) {
 String receber_mensagem_t_segundos(int tempoSegundos){
   unsigned long startTime = millis();  // Armazena o tempo inicial
   String response= "";
-  if (Serial2.available()) {
+
   while ((millis() - startTime) < (tempoSegundos * 1000)) {  // Loop durante o tempo especificado em segundos
     if (Serial2.available()) {  // Verifica se há dados disponíveis na Serial2
       response = Serial2.readStringUntil('\0');  // Lê a resposta até encontrar o caractere nulo
@@ -60,7 +60,8 @@ String receber_mensagem_t_segundos(int tempoSegundos){
 //      }  
     }
   }  
-  }
+
+  Serial.println(response);
   return response;
 }
 //// Receber caracteres por interrupção
@@ -87,10 +88,12 @@ String receber_mensagem(){
     response = Serial2.readStringUntil('\0');  // Lê a resposta até encontrar o caractere nulo
     if (response.charAt(0) == '#') {                                        // Verifica se o primeiro caractere é igual a '#'
       if (response.charAt(response.length() - 1) == '#') {                  // Verifica se o último caractere é igual a '#'
+        Serial.println(response);
         return response;
       }
     }
     else{                         //significa que a mensagem não foi satisfeita
+      Serial.println(response);
       response = "";
       return response;
     }  
@@ -117,4 +120,38 @@ String removePrimeiroUltimoCaractere(const String& str) {
 // Remove todos os caracteres de # e substitui por nada
 void remove_hashtag(String &input) {
   input.replace("#", "");
+}
+
+//Separa o comando de RD, servira para saber a quantidade de iterações usar
+void rd_string(const String &message, String result[]) {
+    // Encontra a posição do primeiro espaço em branco
+    int firstSpacePos = message.indexOf(' ');
+    int secondPos = message.indexOf('#', firstSpacePos);
+    
+    // Verifica se a string começa com "#RD" ou "RD"
+    if (message.startsWith("#RD ") || message.startsWith("RD ")) {
+        // Divide a string em partes usando o espaço em branco como delimitador
+        ///result[0] = "RD"; // A primeira parte é sempre "RD"
+
+        // Verifica se há um segundo espaço em branco
+        if (firstSpacePos != -1) {
+            // Encontra a posição do próximo espaço em branco após o primeiro espaço
+            int secondSpacePos = message.indexOf(' ', firstSpacePos + 1);
+
+            // Se houver um segundo espaço, divide a string em três partes
+            if (secondSpacePos != -1) {
+                result[1] = message.substring(firstSpacePos + 1, secondSpacePos);
+                result[2] = message.substring(secondSpacePos + 1, secondPos);
+            }
+            // Se não houver um segundo espaço, divide a string em duas partes
+            else {                 
+                result[1] = message.substring(firstSpacePos + 1, secondPos);
+                result[2] = "";
+            }
+        } else {
+            // Se não houver um segundo espaço, a segunda parte é uma string vazia
+            result[1] = "";
+            result[2] = "";
+        }
+    } 
 }

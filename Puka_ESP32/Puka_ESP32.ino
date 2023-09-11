@@ -22,6 +22,7 @@ const char* password = "40225295022";
 String comando = "";
 String comando_result[3];   //sera usado para o email, pois divide o comando em tres depois [0]= comando, [1]= email_to, [2]= Assunto
 String resposta = "";
+String rd_result[3];        //usada quando for o comando de RD
 
 // Variáveis do BOT WhatsApp
 String phoneNumber = "+556194142918";                                  // Meu número de celular com formato internacional
@@ -54,6 +55,7 @@ String receber_mensagem_t_segundos(int tempoSegundos);
 void IRAM_ATTR serial_Interrupt();
 String removePrimeiroUltimoCaractere(const String& str);
 void remove_hashtag(String &input);
+void rd_string(const String &message, String result[]);
 
 // Funções e-mail
 bool e_mail(String mensagem, String e_mail_to);
@@ -100,23 +102,65 @@ void loop() {
       delete_post_comando();                  // Já apaga para evitar conflito
       splitMessage(comando, comando_result);
       // envia comando para o Arapuka
-      enviar_comando(comando_result[0]);
+      
       //Serial.println(comando_result[0]);                                        //debug
       //Serial.println(comando_result[1]);                                        //debug
       //Serial.println(comando_result[2]);                                        //debug
       // aguarda mensagem do Arapuka se não for o comando de RTC
       //se for o comando RTC
       if(comando.indexOf("#RTC") != -1){
+        enviar_comando(comando_result[0]);
         post_resposta("RTC ajustado");
       }
+
+      //se for o comando de ler da memoria, checa quantos registros deve ler e aguarda essa quantidade * 4 segundos (tempo de POST request)
+      else if(comando.indexOf("#RD ") != -1){
+        Serial.println("inicio RD");
+//        for(int i=0; i<10; i++)
+//        resposta = receber_mensagem();
+//        remove_hashtag(resposta);
+//        post_resposta(resposta);
+//        Serial.println("fim RD");
+          rd_string(comando, rd_result);
+          enviar_comando(comando_result[0]);                             //envia o comando para o msp 
+          
+          //caso tenha o segundo valor de RD, ex: RD 2 4
+          if(rd_result[2] != ""){
+            for(int i=0; i<(rd_result[2].toInt()-rd_result[1].toInt());i++){
+              do{
+                  Serial.println("---------- RD n m --------------");                                           //debugando, saber se está aqui
+                  resposta = receber_mensagem();        
+                }while(resposta.length() < 10);
+              remove_hashtag(resposta);
+              post_resposta(resposta);
+            }
+            Serial.println("Fim da leitura da memoria");
+           // post_resposta("Fim da leitura da memoria");
+          }
+          else{
+            for(int i=0; i<rd_result[1].toInt(); i++){
+              do{
+                  Serial.println("---------- RD n--------------");                                           //debugando, saber se está aqui
+                  resposta = receber_mensagem();        
+                }while(resposta.length() < 10);
+              remove_hashtag(resposta);
+              post_resposta(resposta);
+            }
+            Serial.println("Fim da leitura da memoria");
+           // post_resposta("Fim da leitura da memoria");
+          }
+      }
+      
       // caso não seja o comando de RTC, aguarda resposta do Arapuka
+      
       else{
+        enviar_comando(comando_result[0]);
         do{
-          //Serial.println("------------------------");                                           //debugando, saber se está aqui
+          Serial.println("------------------------");                                           //debugando, saber se está aqui
           resposta = receber_mensagem();        
         }while(resposta.length() < 10);
         
-        // Se for o comando de emial posta o email
+        // Se for o comando de email posta o email
         if(comando_result[0] == "#MAIL#"){
           // Checa se tem internet para fazer o envio de email
           if(WiFi.status() == WL_CONNECTED) { 
@@ -136,10 +180,13 @@ void loop() {
           if(WiFi.status() == WL_CONNECTED) { 
             remove_hashtag(resposta);
             post_resposta(resposta);
-  
-            //Checa se Chegou mudança de ESTADO
-            //Envia mensagem para o Whatsapp
-            checa_mudanca_estado(resposta);
+            
+            //Se não foi comando de Status, checa se mudou de estado
+            if(comando_result[0] != "#STAT#"){
+              //Checa se Chegou mudança de ESTADO
+              //Envia mensagem para o Whatsapp
+              checa_mudanca_estado(resposta);
+            }
           }
         }
       }
@@ -149,7 +196,7 @@ void loop() {
   
   //obtem resposta do Arapuka
   resposta = receber_mensagem();
-  //Serial.println("||||||||||||||||||||||||||||||||||||||||");  //debugando, saber se está aqui
+  Serial.println("||||||||||||||||||||||||||||||||||||||||");  //debugando, saber se está aqui
   //Faz Post da resposta caso tenha chegado
   if(resposta.length() > 10){
     if(WiFi.status() == WL_CONNECTED) { 
