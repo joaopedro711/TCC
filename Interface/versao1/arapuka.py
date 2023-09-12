@@ -46,7 +46,7 @@ def create_window():
                 [sg.Button('Console', size=(10, 2), pad=(10, 10))],
                 [sg.Text('Estados:')],
                 # botões dos estados
-                [sg.Button('Dormente', size=(10, 2), pad=(10, 10)), sg.Button('Vigilia', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 2), pad=(10, 10)), sg.Button('Suspeito', size=(10, 2), pad=(10, 10))], 
+                [sg.Button('Dormente', size=(10, 2), pad=(10, 10)), sg.Button('Vigilia', size=(10, 2), pad=(10, 10)), sg.Button('Suspeito', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 1', size=(10, 2), pad=(10, 10)), sg.Button('Alerta 2', size=(10, 2), pad=(10, 10))], 
                 
                 
                 [sg.Text('\n\nAções:')],
@@ -142,3 +142,4 @@ if update_thread is not None and update_thread.is_alive():
     update_thread.join()
 
 window.close()   
+sys.exit()  # Encerra o processo Python
