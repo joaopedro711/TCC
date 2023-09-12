@@ -27,7 +27,7 @@ def alerta_2():
     estado_duo_com_mapa("#ALT2#", "Alerta 2", "Estado de Alerta 2")   
 
 def suspeito():
-    sg.popup('Botão Suspeito')
+    estado_duo_com_mapa("#SPT#", "Suspeito", "Estado Suspeito") 
 
 # Funções para cada botão das Ações
 def status():
