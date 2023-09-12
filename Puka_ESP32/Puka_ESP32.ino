@@ -129,7 +129,7 @@ void loop() {
               post_resposta(resposta);
             }
             Serial.println("Fim da leitura da memoria");
-           // post_resposta("Fim da leitura da memoria");
+           post_resposta("Fim da leitura da memoria");
           }
           else{
             for(int i=0; i<rd_result[1].toInt(); i++){
@@ -141,7 +141,7 @@ void loop() {
               post_resposta(resposta);
             }
             Serial.println("Fim da leitura da memoria");
-           // post_resposta("Fim da leitura da memoria");
+           post_resposta("Fim da leitura da memoria");
           }
       }
       
