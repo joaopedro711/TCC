@@ -64,7 +64,7 @@ String receber_mensagem_t_segundos(int tempoSegundos){
   Serial.println(response);
   return response;
 }
-//// Receber caracteres por interrupção
+//// Receber caracteres por interrupção                             Nao deu certo, ficou ruim
 //void IRAM_ATTR serial_Interrupt() {
 //  noInterrupts(); // Desativa interrupções
 //  char character = Serial2.read();

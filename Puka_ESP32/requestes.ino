@@ -68,5 +68,6 @@ void post_resposta(String mensagem){
   }
   // Libera os recursos do objeto HTTPClient
   http.end();
+  delay(100);
   Serial.println("Fim do Post resposta");
 }

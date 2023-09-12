@@ -86,8 +86,6 @@ void setup() {
     }
   
     Serial.println("Conexão Wi-Fi estabelecida!");
-    //pinMode(interruptPin, INPUT_PULLUP);
-  //attachInterrupt(digitalPinToInterrupt(interruptPin), serial_Interrupt, FALLING);
 }
 
 void loop() {
@@ -116,17 +114,13 @@ void loop() {
       //se for o comando de ler da memoria, checa quantos registros deve ler e aguarda essa quantidade * 4 segundos (tempo de POST request)
       else if(comando.indexOf("#RD ") != -1){
         Serial.println("inicio RD");
-//        for(int i=0; i<10; i++)
-//        resposta = receber_mensagem();
-//        remove_hashtag(resposta);
-//        post_resposta(resposta);
-//        Serial.println("fim RD");
+
           rd_string(comando, rd_result);
           enviar_comando(comando_result[0]);                             //envia o comando para o msp 
           
           //caso tenha o segundo valor de RD, ex: RD 2 4
           if(rd_result[2] != ""){
-            for(int i=0; i<(rd_result[2].toInt()-rd_result[1].toInt());i++){
+            for(int i=0; i<(rd_result[2].toInt()-rd_result[1].toInt()) + 1; i++){
               do{
                   Serial.println("---------- RD n m --------------");                                           //debugando, saber se está aqui
                   resposta = receber_mensagem();        
@@ -166,9 +160,9 @@ void loop() {
           if(WiFi.status() == WL_CONNECTED) { 
             extractCoordenadas(resposta, latitude_arapuka, longitude_arapuka);
             coordenadas = String(latitude_arapuka) + "," + String(longitude_arapuka);
-            //Serial.println(coordenadas);
+            //Serial.println(coordenadas);                                                      //debug
             remove_hashtag(resposta);
-            //Serial.println(resposta);
+            //Serial.println(resposta);                                                      //debug
             //envia email com smtp2go
             e_mail(resposta, comando_result[1], comando_result[2], coordenadas);
             post_resposta("E-mail enviado");
