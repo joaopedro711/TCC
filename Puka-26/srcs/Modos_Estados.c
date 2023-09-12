@@ -222,8 +222,8 @@ void set_values_gps(){
     //chama a funçao responsavel por obter os valores atualizados do gps, armazena em um inteiro
     int_latitude_longitude();
 
-    menorlatitude = lat - 200, maiorlatitude = lat + 200;
-    menorlongitude = longt - 300, maiorlongitude = longt + 300;
+    menorlatitude = lat - 250, maiorlatitude = lat + 250;
+    menorlongitude = longt - 350, maiorlongitude = longt + 350;
 }
 
 // Segue o mesmo principio do MPU
@@ -248,7 +248,7 @@ char gps_furto(){
             int_latitude_longitude();
 
             if(lat< menorlatitude || lat > maiorlatitude) alerta++;
-            if(longt < menorlongitude || longt > maiorlongitude) alerta;
+            else if(longt < menorlongitude || longt > maiorlongitude) alerta++;
             else alerta = 0;
 
             if(alerta == 0){             //voltou para o estado normal
@@ -583,7 +583,7 @@ void check_estado_address(){
     else if(vetor[0]=='A' && vetor[1]=='L' && vetor[2]=='T' && vetor[3]=='1'){
         alerta_1();
     }
-    else if(vetor[0]=='A' && vetor[1]=='L' && vetor[2]=='T' && vetor[3]=='1'){
+    else if(vetor[0]=='A' && vetor[1]=='L' && vetor[2]=='T' && vetor[3]=='2'){
         alerta_2();
     }
     else{

@@ -14,16 +14,12 @@
 #include "Gprs.h"
 #include "srcs/Estados.h"
 
-char sel_modo(void);
-
-int choose;
+void liga_perifericos(void);
 
 int main(void){
     unsigned int cont=0;
     WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
     liga_perifericos();
-
-    //config_wifi();
 
     clk_20mhz();
     crono_inic();           //Inicializar cron�metro
@@ -79,92 +75,14 @@ int main(void){
 // -------------------------------------- LOOP principal -----------------------------------------------------------------------------------------
 
     while(TRUE){
-        //vai checar toda vez que der resete, só checa 1 vez
+        //vai checar toda vez que iniciar ou der resete
        check_estado_address();
-        //modo_configrtc(18);
-//        n_rd=12;
-//        ler_n();
-//        n_rd = 3, m_rd=8;
-//        ler_n_m();
-      //  gprs_complete_str("resetando");
-       // resete();
-       // gprs_complete_str("resetou");
-//        Vou chamar a rotina de repouso
-        //sel_estado();
-        //modo_rtc(14);    //Testar RTC
-        //alerta_1();
 
-       // modo_gprmc(20);
-       // modo_furto(26);
-       // modo_mpu(20);
-        //vigilia();
-
-/*       ser1_str("Digite 1 para modo de teste de modos\n");
-        ser1_str("Digite 2 para modo de execucao do programa final\n");
-        lcdb_apaga();
-        lcdb_str(1,1,"Modo de Operacao:");
-        choose=sel_modo();
-        switch(choose){
-        case 1:
-        lcdb_apaga();
-        lcdb_str(1,1,"Puka:");
-        ser1_str("\r\n==> Puka: ");
-        //lcd_atualiza();
-        //modo=21;                    //<==Pular direto para um modo
-        modo=sel_modo();          //<==Selecionar modo
-        ser1_char('[');
-        ser1_dec8u(modo);
-        ser1_char(']');
-        //modo=1;     //for�ar um dos modos
-        lcdb_apaga();
-        switch(modo){
-            case MODO_0:   modo_0(modo);  break;
-            case MODO_1:   modo_1(modo);  break;
-            case MODO_2:   modo_2(modo);  break;
-            case MODO_3:   modo_3(modo);  break;
-            case MODO_4:   modo_4(modo);  break;
-            case MODO_5:   modo_5(modo);  break;
-            case MODO_6:   modo_6(modo);  break;
-            case MODO_7:   modo_7(modo);  break;
-            case MODO_8:   modo_8(modo);  break;
-            case MODO_9:   modo_9(modo);  break;
-            case MODO_10:  modo_sw(modo); break;    //Testar chaves
-            case MODO_11:  modo_leds(modo);  break; //Testar Leds
-            case MODO_12:  modo_lcd(modo);  break;  //Testar LCD
-            case MODO_13:  modo_mpu(modo);  break;  //Testar MPU
-            case MODO_14:  modo_rtc(modo);  break;  //Testar RTC
-            case MODO_15:  modo_wq(modo);  break;   //Testar WQ
-            case MODO_16:  modo_gps(modo);  break;  //Testar GPS
-            case MODO_17:  modo_gps_d(modo);  break; //GPS em uma linha
-            case MODO_18:  modo_configrtc(modo);  break;
-            case MODO_19:  modo_gps_c(modo);  break; //Filtro GPS
-            case MODO_20:  modo_gprmc(modo);  break;
-            case MODO_21:  modo_gprs(modo);  break;
-            case MODO_22:  modo_save_char(modo);  break;
-            case MODO_23:  modo_save(modo);  break;
-            case MODO_24:  send_wifi(modo);  break;
-            case MODO_25:  modo_save_f(modo);  break;
-            case MODO_26:  modo_furto(modo);  break;
-            case MODO_27:    break;
-            case MODO_99:  modo_99(modo);  break;   //Comando errado
-        }
-        break;
-        case 2:
-        //AA:MM:DD HH:MM:SS +LL.LLLL +LL.LLLL +axaxax +ayayay +azazaz +gxgxgx +gygygy +gzgzgz CR LF
-        //lcdb_apaga();
-        //modo_furto(26);*/
-//        delay_10ms(42000); //atraso 7 minutos
-//        while(TRUE){
-//        lcdb_apaga();
-//        modo_save_f(25);
-//        }
-/*        break;
-
-        default: break;*/
-//    }
     }
     return 0;
 }
+// ------------------------------------------------------------------------------------------------------------------------------------
+
 void liga_perifericos(void){
     P8DIR |= BIT2;
     P8OUT &= ~BIT2;
@@ -173,6 +91,8 @@ void liga_perifericos(void){
 void toggle_consumo(void){
     P8OUT ^= BIT2;
 }
+
+//Não usei, codigo do pessoal anterior, util para aproveitar o codigo e fazer outras coisas
 // Selecionar o modo
 char sel_modo(void){
     char x;
