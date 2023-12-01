@@ -14,7 +14,7 @@ if sys.platform == "win32":
     base = "Win32GUI"
 
 setup(
-    name="Arapuka",
+    name="Arapuca",
     version="1.0",
     description="Projeto de TCC",
     options={"build_exe": build_exe_options},
