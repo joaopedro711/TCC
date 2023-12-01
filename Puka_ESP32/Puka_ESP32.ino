@@ -1,5 +1,5 @@
 /*
- * Intermediário para a comunicação do App com o Arapuka
+ * Intermediário para a comunicação do App com o Arapuca
  *
  */
 #include <WiFi.h>
@@ -15,7 +15,7 @@ bool buttonPressed = false;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Configurações da rede WiFi à se conectar
-const char* ssid = "Netvirtua_VERA";
+const char* ssid = "RADNET TELECOM - 36857";
 const char* password = "40225295022";
 
 //Variáveis Comando e Resposta

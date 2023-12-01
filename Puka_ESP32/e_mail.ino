@@ -50,7 +50,7 @@ bool e_mail(String mensagem, String e_mail_to, String assunto, String coordenada
   client.println("From: <" + String(email_from) + ">");
   client.println("To: <" + String(email_to) + ">");
   client.println("Content-Type: text/plain");
-  client.println("Arapuka móvel\n\r" + String(mensagem) + "\n\r" + "https://www.google.com/maps?q="+ String(coordenadas)+ "\n\r att");
+  client.println("Arapuca movel\n\r" + String(mensagem) + "\n\r" + "https://www.google.com/maps?q="+ String(coordenadas)+ "\n\r att");
   client.println(".");
   waitForResponse(client);
 
