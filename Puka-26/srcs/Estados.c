@@ -83,6 +83,23 @@ void sel_estado(){
         else if(estado_comando[0] == '#' && estado_comando[1] == 'S' && estado_comando[2] == 'T' && estado_comando[3] == 'A' && estado_comando[4] == 'T' && estado_comando[5] == '#'){
             status();
         }
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'g' && estado_comando[2] == 'r' && estado_comando[3] == 'e' && estado_comando[7] == 'o' && estado_comando[8] == 'n'){
+            led_VD();
+            gprs_complete_str("LED Verde ON");
+        }
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'g' && estado_comando[2] == 'r' && estado_comando[3] == 'e' && estado_comando[7] == 'o' && estado_comando[8] == 'f' && estado_comando[9] == 'f'){
+            led_Vd();
+            gprs_complete_str("LED Verde Off");
+        }
+
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'r' && estado_comando[2] == 'e' && estado_comando[3] == 'd' && estado_comando[5] == 'o' && estado_comando[6] == 'n'){
+            led_VM();
+            gprs_complete_str("Led Vermelho ON");
+        }
+        else if(estado_comando[0] == '#' && estado_comando[1] == 'r' && estado_comando[2] == 'e' && estado_comando[3] == 'd' && estado_comando[5] == 'o' && estado_comando[6] == 'f' && estado_comando[7] == 'f'){
+            led_Vm();
+            gprs_complete_str("Led Vermelho Off");
+        }
         else{
             code_erro();
         }
