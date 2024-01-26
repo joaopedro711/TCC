@@ -46,7 +46,7 @@ void sel_estado(){
             dormente();
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'V' && estado_comando[2] == 'I' && estado_comando[3] == 'G' && estado_comando[4] == '#'){
-             vigilia();
+            vigilia();
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'A' && estado_comando[2] == 'L' && estado_comando[3] == 'T' && estado_comando[4] == '1' && estado_comando[5] == '#'){
             alerta_1();
@@ -61,7 +61,7 @@ void sel_estado(){
             apagar();
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'T' && estado_comando[3] == 'C'){
-             rtc_configure();
+            rtc_configure();
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'R' && estado_comando[2] == 'D' && estado_comando[3] == ' ') { //Checa se é o comando de leitura das posições de memoria
             ler_memoria();                                          // Funcao que decide se vai ler_n ou ler_n_m
@@ -85,22 +85,23 @@ void sel_estado(){
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'g' && estado_comando[2] == 'r' && estado_comando[3] == 'e' && estado_comando[7] == 'o' && estado_comando[8] == 'n'){
             led_VD();
-            gprs_complete_str("LED Verde ON");
+            gprs_complete_str("LED Verde ON"); lcdb_str(1,1,"Led Verde ON   ");
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'g' && estado_comando[2] == 'r' && estado_comando[3] == 'e' && estado_comando[7] == 'o' && estado_comando[8] == 'f' && estado_comando[9] == 'f'){
-            led_Vd();
-            gprs_complete_str("LED Verde Off");
+            led_vd();
+            gprs_complete_str("LED Verde Off"); lcdb_str(1,1,"Led Verde OFF  ");
         }
 
         else if(estado_comando[0] == '#' && estado_comando[1] == 'r' && estado_comando[2] == 'e' && estado_comando[3] == 'd' && estado_comando[5] == 'o' && estado_comando[6] == 'n'){
             led_VM();
-            gprs_complete_str("Led Vermelho ON");
+            gprs_complete_str("Led Vermelho ON"); lcdb_str(1,1,"Led RED ON     ");
         }
         else if(estado_comando[0] == '#' && estado_comando[1] == 'r' && estado_comando[2] == 'e' && estado_comando[3] == 'd' && estado_comando[5] == 'o' && estado_comando[6] == 'f' && estado_comando[7] == 'f'){
-            led_Vm();
-            gprs_complete_str("Led Vermelho Off");
+            led_vm();
+            gprs_complete_str("Led Vermelho Off"); lcdb_str(1,1,"Led RED OFF   ");
         }
         else{
+            lcdb_str(1,1,"Codigo Errado  ");
             code_erro();
         }
     }
@@ -109,13 +110,16 @@ void sel_estado(){
 
 // Realiza o resete do MSP por software
 void resete(){
+    lcdb_str(1,1,"Resete         ");
     PMMCTL0 = PMMPW | PMMSWPOR; // Configuração para realizar um software reset
 }
 
 void dormente(){
+    lcdb_str(1,1,"Dormente       ");
     estado_puka[0]= 'D',estado_puka[1]= 'M',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado Dormente");
+    salvar_memoria();
 
     while(TRUE){
         sel_estado();
@@ -123,6 +127,7 @@ void dormente(){
 }
 
 void vigilia(){
+    lcdb_str(1,1,"Vigilia        ");
     estado_puka[0]= 'V',estado_puka[1]= 'I',estado_puka[2]= 'G',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Vigilia");
@@ -144,6 +149,7 @@ void vigilia(){
 
 // Envia posição a cada hora e grava na memoria
 void alerta_1(){
+    lcdb_str(1,1,"Alerta 1       ");
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '1',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Alerta 1");
@@ -175,6 +181,7 @@ void alerta_1(){
 
 // Envia posição a cada min, a cada hora grava na memoria
 void alerta_2(){
+    lcdb_str(1,1,"Alerta 2       ");
     estado_puka[0]= 'A',estado_puka[1]= 'L',estado_puka[2]= 'T',estado_puka[3]= '2',estado_puka[4]= ' ', estado_puka[5]= '-', estado_puka[6]= ' ',estado_puka[7]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado de Alerta 2");
@@ -211,6 +218,7 @@ void alerta_2(){
 }
 
 void suspeito(){
+    lcdb_str(1,1,"Suspeito       ");
     estado_puka[0]= 'S',estado_puka[1]= 'P',estado_puka[2]= 'T',estado_puka[3]= ' ', estado_puka[4]= '-', estado_puka[5]= ' ',estado_puka[6]= '\0';
     gprs_complete_str(estado_puka);
     gprs_complete_str("Arapuka em estado Suspeito");
@@ -247,12 +255,14 @@ void suspeito(){
 }
 
 void apagar(){
+    lcdb_str(1,1,"Apagar Memoria ");
     wq_erase_chip();
     gprs_complete_str("Toda Memoria apagada");
 }
 
 //Decide qual função chamar, se chama a de ler_n ou ler_n_m
 void ler_memoria(){
+    lcdb_str(1,1,"Ler Memoria    ");
     unsigned int i,z,entrou=0;
     int j=1;
 
@@ -335,6 +345,7 @@ void ler_n_m(int n,int m){
 
 //recebe horario por gprs e salva no RELOGIO
 void rtc_configure(){
+    lcdb_str(1,1,"RTC Configure  ");
     char vetor[3];
 
     //Data (dd/mm/aa)
@@ -373,6 +384,7 @@ void code_erro(){
 
 // Envia RTC + GPS (conteúdo do email)
 void email(){
+    lcdb_str(1,1,"E-mail         ");
     rtc_estado();
     gps_estado_modo();
     //argumento FALSE para receber apenas os valores do RTC + GPS
@@ -383,6 +395,7 @@ void email(){
 // retorna todos os dados para o ESP32
 //envia o estado atual, data/hora, localização e acel/gir
 void status(){
+    lcdb_str(1,1,"Status         ");
     rtc_estado();
     gps_estado_modo();
     //argumento FALSE para receber apenas os valores do RTC + GPS
